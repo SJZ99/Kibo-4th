@@ -60,6 +60,16 @@ public class WayPointsHelper {
 
         // 1 <-> 6
         wayPoint[0][5].add(new Point(11.355, -8.993, 4.78));
+
+
+
+        //----------------------------------------------------Judy go go go! ---------------------------------------------
+
+        // 3<->4
+        wayPoint[2][3].add(new Point(10.51,-6.7185,5.1804));
+
+        //3-5
+        wayPoint[2][3].add(new Point(11.114, -7.9756 ,5.3393));
     }
 
     public static Quaternion getTargetRotation(int targetPoint) {
