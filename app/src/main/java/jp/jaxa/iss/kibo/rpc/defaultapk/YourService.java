@@ -17,9 +17,6 @@ public class YourService extends KiboRpcService {
 
     /*************** move ***************/
     private void move(int from, int to) {
-        // from point number map to index
-        --from; --to;
-
         // same point
         if(from == to) return;
 
@@ -48,24 +45,31 @@ public class YourService extends KiboRpcService {
     @Override
     protected void runPlan1(){
         api.startMission();
-        start2p1();
+
+        move(0, 1);
         api.laserControl(true);
         api.takeTargetSnapshot(1);
+<<<<<<< HEAD
         move(1, 3);
+=======
+
+        //move(1, 2);
+>>>>>>> cc9b692ba0f7051255ffb4b1b59cda2059b12f01
         //move(1, 3);
         //move(1, 4);
-        //move(1, 5);
+        move(1, 5);
+        //move(1, 6);
+
         api.laserControl(true);
+<<<<<<< HEAD
         api.takeTargetSnapshot(3);
         move(3,4);
         api.laserControl(true);
         api.takeTargetSnapshot(4);
+=======
+        api.takeTargetSnapshot(5);
+>>>>>>> cc9b692ba0f7051255ffb4b1b59cda2059b12f01
         api.reportMissionCompletion("");
-    }
-
-    private void start2p1() {
-        api.moveTo(new Point(10.6, -9.9, 4.9), new Quaternion(0, 0, -0.707f, 0.707f), isDebug);
-        api.moveTo(new Point(11.27 - 0.06, -9.92 - 0.05, 5.29 + 0.185), new Quaternion(0, 0, -0.707f, 0.707f), isDebug);
     }
 }
 
