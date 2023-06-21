@@ -69,10 +69,18 @@ public class WayPointsHelper {
         //----------------------------------------------------Judy go go go! ---------------------------------------------
 
         // 3<->4
-        wayPoint[2][3].add(new Point(10.51, -6.7185, 5.1804));
+        wayPoint[3][4].add(new Point(10.626533168828,7.1936467429033,5.1804));
+        wayPoint[3][4].add(new Point(10.51, -6.7185, 5.1804));
+
 
         //3-5
-        wayPoint[2][3].add(new Point(11.114, -7.9756, 5.3393));
+        wayPoint[3][4].add(new Point(10.7840790443551,7.7494526460151,  5.3393));
+        wayPoint[3][4].add(new Point(11.114, -7.9756, 5.3393));
+
+        //4-5
+        wayPoint[3][5].add(new Point( 10.53, -6.76, 5.2));
+        wayPoint[3][5].add(new Point(10.92,-7.57,5.3393));
+        wayPoint[3][5].add(new Point(11.114, -7.9756, 5.3393));
     }
 
 
