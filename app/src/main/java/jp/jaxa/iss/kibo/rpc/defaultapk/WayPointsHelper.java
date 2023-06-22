@@ -8,7 +8,7 @@ import java.util.Map;
 import gov.nasa.arc.astrobee.types.Point;
 import gov.nasa.arc.astrobee.types.Quaternion;
 
-/**
+/*
  * Created by Jian Zhe Su on 6/20/2023.
  */
 
@@ -87,6 +87,33 @@ public class WayPointsHelper {
         wayPoint[1][7].add(points[7]);
 
 
+        //-----------------------------------------Point 2---------------------------------------------
+        // 2 <-> 3
+        wayPoint[2][3].add(points[2]);
+        wayPoint[2][3].add(new Point(10.66 , -8.38,5));
+        wayPoint[2][3].add(points[3]);
+
+        // 2 <-> 4
+        wayPoint[2][4].add(points[2]);
+        wayPoint[2][4].add(new Point(10.58, -8.32 , 5));
+        wayPoint[2][4].add(points[4]);
+
+        // 2 <-> 5
+        wayPoint[2][5].add(points[2]);
+        wayPoint[2][5].add(new Point(10.612 - 0.155, -9.07 - 0.125,5.33));
+        wayPoint[2][5].add(points[5]);
+
+        // 2 <-> 6
+        wayPoint[2][6].add(points[6]);
+        wayPoint[2][6].add(new Point(10.92,-9.30,4.48));
+        wayPoint[2][6].add(points[6]);
+
+        // 2 <-> 7
+        wayPoint[2][7].add(points[2]);
+        wayPoint[2][7].add(new Point(10.612 - 0.155, -9.07 - 0.125, 4.94));
+        wayPoint[2][7].add(points[7]);
+
+
         //-----------------------------------------Point 3---------------------------------------------
 
         //0-3
@@ -123,6 +150,7 @@ public class WayPointsHelper {
         wayPoint[0][4].add(points[0]);
         wayPoint[0][4].add(new Point(10.411232142903,-9.7023593629268, 5.185));
         wayPoint[0][4].add(points[4]);
+
         // 4 <-> 5
         wayPoint[4][5].add(points[4]);
         wayPoint[4][5].add(new Point( 10.4397212574624,-7.5187431047674, 5.33));
@@ -137,6 +165,19 @@ public class WayPointsHelper {
         wayPoint[4][7].add(points[4]);
         wayPoint[4][7].add(new Point(10.7630545575701,-8.4938681311779, 4.9));
         wayPoint[4][7].add(points[7]);
+
+        //-----------------------------------------Point 5---------------------------------------------
+        // 5 <-> 6
+        wayPoint[5][6].add(points[5]);
+        wayPoint[5][6].add(new Point(11.20,-8.33,5));
+        wayPoint[5][6].add(points[6]);
+
+        // 5 <-> 7
+        wayPoint[5][7].add(points[5]);
+        wayPoint[5][7].add(new Point(11.20,-8.33,5));
+        wayPoint[5][7].add(points[7]);
+
+
         //-----------------------------------------Point 6---------------------------------------------
         // 0 <-> 6
         wayPoint[0][6].add(points[0]);
