@@ -118,7 +118,7 @@ public class WayPointsHelper {
 
         //0-3
         wayPoint[0][3].add(points[0]);
-        wayPoint[0][3].add(new Point(10.411232142903,-9.7023593629268,478));
+        wayPoint[0][3].add(new Point(10.411232142903,-9.7023593629268,4.78));
         wayPoint[0][3].add(points[3]);
 
         // 3 <-> 4
