@@ -1,12 +1,10 @@
 package jp.jaxa.iss.kibo.rpc.defaultapk;
 
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import android.util.Log;
 
+import java.util.ArrayList;
+
+import gov.nasa.arc.astrobee.Result;
 import gov.nasa.arc.astrobee.types.Point;
 import gov.nasa.arc.astrobee.types.Quaternion;
 import jp.jaxa.iss.kibo.rpc.api.KiboRpcService;
@@ -14,8 +12,18 @@ import jp.jaxa.iss.kibo.rpc.api.KiboRpcService;
 
 public class YourService extends KiboRpcService {
     static final boolean isDebug = true;
+    static final int LOOP_MAX = 5;
 
     /*************** move ***************/
+    private void moveTo(Point p, Quaternion q) {
+        int loopCounter = 0;
+        Result result = null;
+        do {
+            result = api.moveTo(p, q, isDebug);
+            ++loopCounter;
+        } while(result != null && !result.hasSucceeded() && loopCounter < LOOP_MAX);
+    }
+
     private void move(int from, int to) {
         // same point
         if(from == to) return;
@@ -24,39 +32,42 @@ public class YourService extends KiboRpcService {
         boolean isReversed = false;
         Quaternion rotation = WayPointsHelper.getTargetRotation(to);
         if(from > to) {
-            from ^= to ^= from;
+            int temp = from;
+            from = to;
+            to = temp;
             isReversed = true;
-            rotation = WayPointsHelper.getTargetRotation(to);
         }
 
         ArrayList<Point> points = WayPointsHelper.getWayPoint(from, to);
         if(isReversed) {
-            for(int i = points.size() - 1; i >= 0; --i) {
-                api.moveTo(points.get(i), rotation, isDebug);
+            for(int i = points.size() - 2; i >= 0; --i) {
+                moveTo(points.get(i), rotation);
             }
         } else {
-            for(int i = 0; i < points.size(); ++i) {
-                api.moveTo(points.get(i), rotation, isDebug);
+            for(int i = 1; i < points.size(); ++i) {
+                moveTo(points.get(i), rotation);
             }
         }
     }
-    /*************** move end ***************/
 
+    /*************** move end ***************/
     @Override
     protected void runPlan1(){
         api.startMission();
 
-        move(0, 1);
+        int a = 6, b = 7, c = 0;
+        move(0, a);
         api.laserControl(true);
-        api.takeTargetSnapshot(1);
+        api.takeTargetSnapshot(a);
 
-        move(1, 3);
-        api.laserControl(true);
-        api.takeTargetSnapshot(3);
+        move(a, b);
+        api.saveMatImage(api.getMatNavCam(), "qr.jpg");
+//        api.laserControl(true);
+//        api.takeTargetSnapshot(b);
 
-        move(3,4);
+        move(b, a);
         api.laserControl(true);
-        api.takeTargetSnapshot(4);
+        api.takeTargetSnapshot(a);
 
         api.reportMissionCompletion("");
     }
