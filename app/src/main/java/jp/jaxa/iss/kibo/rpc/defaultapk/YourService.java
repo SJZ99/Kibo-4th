@@ -1,7 +1,5 @@
 package jp.jaxa.iss.kibo.rpc.defaultapk;
 
-import android.util.Log;
-
 import java.util.ArrayList;
 
 import gov.nasa.arc.astrobee.Result;
