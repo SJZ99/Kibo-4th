@@ -49,8 +49,8 @@ public class YourService extends KiboRpcService {
             }
         }
     }
-
     /*************** move end ***************/
+
     @Override
     protected void runPlan1(){
         api.startMission();
