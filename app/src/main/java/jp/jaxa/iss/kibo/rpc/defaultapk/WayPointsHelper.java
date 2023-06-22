@@ -74,9 +74,8 @@ public class WayPointsHelper {
 
 
         //3-5
-        // keep out zone
-        wayPoint[3][5].add(new Point(10.7840790443551,-7.7494526460151,  5.3393));
-        // keep out zone
+
+        wayPoint[3][5].add(new Point(10.71, -7.7 - 0.068,  5.33));
         wayPoint[3][5].add(new Point(11.114 - 0.07, -7.97 + 0.05, 5.33));
 
         //3-6
@@ -86,13 +85,12 @@ public class WayPointsHelper {
 
 
         //3-7
-        // keep in zone
-        wayPoint[3][7].add(new Point(10.6974195342895,-8.101652195976,  4.0));
 
-        wayPoint[3][7].add(new Point(11.3054897644974,-8.4952459219104, 4.0));
-
-        // keep out zone
+        wayPoint[3][7].add(new Point(10.6974195342895,-8.101652195976,  4.78));
+        wayPoint[3][7].add(new Point(11.3054897644974,-8.4952459219104, 4.78));
         wayPoint[3][7].add(new Point(11.355, -8.993, 4.78));
+
+
 
         //4-5
         wayPoint[4][5].add(new Point( 10.53, -6.76, 5.2));
