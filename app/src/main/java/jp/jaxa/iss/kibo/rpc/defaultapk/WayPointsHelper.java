@@ -2,7 +2,7 @@ package jp.jaxa.iss.kibo.rpc.defaultapk;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
+
 import java.util.Map;
 
 import gov.nasa.arc.astrobee.types.Point;
@@ -89,10 +89,42 @@ public class WayPointsHelper {
 
         //-----------------------------------------Point 3---------------------------------------------
         // 3 <-> 4
-        wayPoint[3][4].add(new Point(10.51, -6.7185, 5.1804));
+        wayPoint[3][4].add(points[3]);
+        wayPoint[3][4].add(new Point(10.626533168828,-7.1936467429033,5.1804));
+        wayPoint[3][4].add(points[4]);
 
-        //3 <-> 5
-        wayPoint[3][5].add(new Point(11.114, -7.9756, 5.3393));
+
+        // 3 <-> 5
+        wayPoint[3][5].add(points[3]);
+        // keep out zone
+        wayPoint[3][5].add(new Point(10.7840790443551,-7.7494526460151,  5.3393));
+        // keep out zone
+        wayPoint[3][5].add(points[5]);
+
+        // 3 <-> 6
+        // wayPoint[3][6].add(new Point(10.7462457251825,-7.7407861997722,  4.78));
+        wayPoint[3][6].add(points[3]);
+        wayPoint[3][6].add(new Point(10.6974195342895,-8.101652195976,  4.78));
+        wayPoint[3][6].add(points[6]);
+
+
+        // 3 <-> 7
+        wayPoint[3][7].add(points[3]);
+        // keep in zone
+        wayPoint[3][7].add(new Point(10.6974195342895,-8.101652195976,  4.0));
+
+        wayPoint[3][7].add(new Point(11.3054897644974,-8.4952459219104, 4.0));
+
+        // keep out zone
+        wayPoint[3][7].add(points[7]);
+
+        //-----------------------------------------Point 4---------------------------------------------
+        // 4 <-> 5
+        wayPoint[4][5].add(points[4]);
+        wayPoint[4][5].add(new Point( 10.53, -6.76, 5.2));
+        wayPoint[4][5].add(new Point(10.92,-7.57,5.3393));
+        wayPoint[4][5].add(points[5]);
+
 
         //-----------------------------------------Point 6---------------------------------------------
         // 0 <-> 6
