@@ -14,6 +14,7 @@ public class YourService extends KiboRpcService {
     static final boolean isDebug = true;
     static final int LOOP_MAX = 5;
     static int currPoint = 0;
+    static boolean hasScanned = false;
 
     /*************** move ***************/
     private boolean moveTo(Point p, Quaternion q) {
@@ -58,8 +59,8 @@ public class YourService extends KiboRpcService {
     }
     /*************** move end ***************/
 
-    private void decide(List<Point> points) {
-        Point p = WayPointsHelper.getPoint(currPoint);
+    private void sort(List<Point> points) {
+        Point p = api.getRobotKinematics().getPosition();
         Collections.sort(points, new WayPointsHelper.PointComparator(p));
     }
 
@@ -67,26 +68,29 @@ public class YourService extends KiboRpcService {
     protected void runPlan1(){
         api.startMission();
 
+        boolean isIdle = false;
+        while(api.getTimeRemaining().get(1) > 55000) {
+            List<Integer> activatedTargets = api.getActiveTargets();
+            List<Point> activatedPoints = new ArrayList<>(activatedTargets.size());
 
-        int a = 4, b = 8, c = 5, d=4;
-        move(0, a);
-        api.laserControl(true);
-        api.takeTargetSnapshot(a);
+            for(Integer i : activatedTargets) {
+                activatedPoints.add(WayPointsHelper.getPoint(i));
+            }
+
+            sort(activatedPoints);
+
+            for(Point target : activatedPoints) {
+                if(api.getTimeRemaining().get(0) < 42500) {
+                    isIdle = true;
+                    break;
+                }
 
 
-        move(a, b);
-//        api.saveMatImage(api.getMatNavCam(), "qr.jpg");
-        api.laserControl(true);
-        api.takeTargetSnapshot(b);
+            }
+        }
 
-//        move(b, c);
-//        api.laserControl(true);
-//        api.takeTargetSnapshot(c);
-//
-//        move(c, d);
-//        api.laserControl(true);
-//        api.takeTargetSnapshot(d);
-
+        api.notifyGoingToGoal();
+        move(currPoint, 8);
         api.reportMissionCompletion("");
     }
 }
