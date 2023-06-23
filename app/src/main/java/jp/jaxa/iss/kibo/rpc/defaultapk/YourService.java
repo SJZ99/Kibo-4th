@@ -68,7 +68,7 @@ public class YourService extends KiboRpcService {
         api.startMission();
 
 
-        int a = 1, b = 5, c = 6, d = 5;
+        int a = 1, b = 2, c = 6, d = 2;
         move(0, a);
         api.laserControl(true);
         api.takeTargetSnapshot(a);
