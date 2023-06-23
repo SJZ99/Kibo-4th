@@ -187,12 +187,12 @@ public class WayPointsHelper {
         //-----------------------------------------Point 5---------------------------------------------
         // 5 <-> 6
         wayPoint[5][6].add(points[5]);
-        wayPoint[5][6].add(new Point(11.20,-8.33,5));
+        wayPoint[5][6].add(new Point(11.20,-8.33,5.5));
         wayPoint[5][6].add(points[6]);
 
         // 5 <-> 7
         wayPoint[5][7].add(points[5]);
-        wayPoint[5][7].add(new Point(11.20,-8.33,5));
+        wayPoint[5][7].add(new Point(11.20,-8.33,5.5));
         wayPoint[5][7].add(points[7]);
 
 
