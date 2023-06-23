@@ -53,6 +53,11 @@ public class WayPointsHelper {
 
     private static void addWayPoint() {
         //-----------------------------------------Point 1---------------------------------------------
+
+       // 0-7
+        wayPoint[0][1].add(points[0]);
+        wayPoint[0][1].add(new Point (11,-9.5, 4.48));
+        wayPoint[0][1].add(points[1]);
         // 0 <-> 1
         wayPoint[0][1].add(points[0]);
         wayPoint[0][1].add(new Point(10.6, -9.9, 4.9));
