@@ -22,7 +22,7 @@ public class WayPointsHelper {
     static {
         points[0] = new Point(9.815, -9.806, 4.293);
         points[1] = new Point(11.27 - 0.06, -9.92 - 0.05, 5.29 + 0.185);
-        points[2] = new Point(10.612 - 0.155, -9.07 - 0.125, 4.55);
+        points[2] = new Point(10.612 - 0.155, -9.07 - 0.125, 4.58);
         points[3] = new Point(10.71, -7.7 - 0.068, 4.48);
         points[4] = new Point(10.51, -6.718 + 0.1, 5.1804 + 0.03);
         points[5] = new Point(11.114 - 0.07, -7.97 + 0.05, 5.33);
