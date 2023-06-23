@@ -224,20 +224,30 @@ public class WayPointsHelper {
         return points[p];
     }
 
-    public static class PointComparator implements Comparator<Point> {
+    public static class MyPoint {
+        public Point p;
+        public int id;
+
+        public MyPoint(int id, Point p) {
+            this.id = id;
+            this.p = p;
+        }
+    }
+
+    public static class PointComparator implements Comparator<MyPoint> {
         private Point now;
         public PointComparator(Point now) {
             this.now = now;
         }
 
         @Override
-        public int compare(Point p1, Point p2) {
-            double d1 = getDistanceSquare(p1);
-            double d2 = getDistanceSquare(p2);
+        public int compare(MyPoint p1, MyPoint p2) {
+            double d1 = getDistanceSquare(p1.p);
+            double d2 = getDistanceSquare(p2.p);
             if(d1 < d2) {
-                return 1;
-            } else if (d1 > d2) {
                 return -1;
+            } else if (d1 > d2) {
+                return 1;
             }
             return 0;
         }

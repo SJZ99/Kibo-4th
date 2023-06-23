@@ -15,6 +15,7 @@ public class YourService extends KiboRpcService {
     static final int LOOP_MAX = 5;
     static int currPoint = 0;
     static boolean hasScanned = false;
+    static String message = "";
 
     /*************** move ***************/
     private boolean moveTo(Point p, Quaternion q) {
@@ -59,33 +60,49 @@ public class YourService extends KiboRpcService {
     }
     /*************** move end ***************/
 
-    private void sort(List<Point> points) {
+    private List<WayPointsHelper.MyPoint> sort(List<Integer> targets) {
         Point p = api.getRobotKinematics().getPosition();
+
+        // list for id and point
+        List<WayPointsHelper.MyPoint> points = new ArrayList<>(targets.size());
+
+        // map
+        for(Integer i : targets) {
+            points.add(new WayPointsHelper.MyPoint(i, WayPointsHelper.getPoint(i)));
+        }
+
+        // sort
         Collections.sort(points, new WayPointsHelper.PointComparator(p));
+        return points;
+    }
+
+    private void qrCodeMission() {
+        move(0, 7);
+        message = QrCodeHelper.scan();
     }
 
     @Override
     protected void runPlan1(){
         api.startMission();
 
+        // 0 -> 7, and scan
+        qrCodeMission();
+
         boolean isIdle = false;
+        // 55 sec for moving to the goal
         while(api.getTimeRemaining().get(1) > 55000) {
             List<Integer> activatedTargets = api.getActiveTargets();
-            List<Point> activatedPoints = new ArrayList<>(activatedTargets.size());
 
-            for(Integer i : activatedTargets) {
-                activatedPoints.add(WayPointsHelper.getPoint(i));
-            }
+            // sort, at most two point, greedy
+            List<WayPointsHelper.MyPoint> points = sort(activatedTargets);
 
-            sort(activatedPoints);
-
-            for(Point target : activatedPoints) {
+            for(WayPointsHelper.MyPoint target : points) {
+                // 42.5 sec for moving
                 if(api.getTimeRemaining().get(0) < 42500) {
                     isIdle = true;
                     break;
                 }
-
-
+//                move()
             }
         }
 
