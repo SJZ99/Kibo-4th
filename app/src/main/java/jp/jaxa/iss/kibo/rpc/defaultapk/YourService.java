@@ -60,19 +60,25 @@ public class YourService extends KiboRpcService {
     protected void runPlan1(){
         api.startMission();
 
-        int a = 1, b = 8, c = 1;
+
+        int a = 1, b = 8, c = 5, d=4;
         move(0, a);
         api.laserControl(true);
         api.takeTargetSnapshot(a);
 
-//        move(a, b);
+
+        move(a, b);
 //        api.saveMatImage(api.getMatNavCam(), "qr.jpg");
-//        api.laserControl(true);
-//        api.takeTargetSnapshot(b);
-//
+        api.laserControl(true);
+        api.takeTargetSnapshot(b);
+
 //        move(b, c);
 //        api.laserControl(true);
-//        api.takeTargetSnapshot(a);
+//        api.takeTargetSnapshot(c);
+//
+//        move(c, d);
+//        api.laserControl(true);
+//        api.takeTargetSnapshot(d);
 
         api.reportMissionCompletion("");
     }
