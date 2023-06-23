@@ -68,7 +68,7 @@ public class YourService extends KiboRpcService {
         api.startMission();
 
 
-        int a = 4, b = 8, c = 5, d=4;
+        int a = 1, b = 5, c = 6, d = 5;
         move(0, a);
         api.laserControl(true);
         api.takeTargetSnapshot(a);
@@ -79,13 +79,13 @@ public class YourService extends KiboRpcService {
         api.laserControl(true);
         api.takeTargetSnapshot(b);
 
-//        move(b, c);
-//        api.laserControl(true);
-//        api.takeTargetSnapshot(c);
-//
-//        move(c, d);
-//        api.laserControl(true);
-//        api.takeTargetSnapshot(d);
+        move(b, c);
+        api.laserControl(true);
+        api.takeTargetSnapshot(c);
+
+        move(c, d);
+        api.laserControl(true);
+        api.takeTargetSnapshot(d);
 
         api.reportMissionCompletion("");
     }
