@@ -28,6 +28,7 @@ public class WayPointsHelper {
         points[5] = new Point(11.114 - 0.07, -7.97 + 0.05, 5.33);
         points[6] = new Point(11.355, -8.993 - 0.053, 4.78 + 0.16);
         points[7] = new Point(11.369, -8.55, 4.48);
+        points[8] = new Point(11.143, -6.76, 4.96);
 
         wayPointInit();
         targetRotationInit();
@@ -90,7 +91,7 @@ public class WayPointsHelper {
 
         // 1 <-> 8
         wayPoint[1][8].add(points[1]);
-        wayPoint[1][8].add(new Point(11.22, -8.20, 4.85));
+        wayPoint[1][8].add(new Point(11.22, -8.20, 4.83));
         wayPoint[1][8].add(points[8]);
 
         //-----------------------------------------Point 2---------------------------------------------
@@ -153,6 +154,10 @@ public class WayPointsHelper {
         wayPoint[3][7].add(new Point(11.355, -8.993, 4.78));
         wayPoint[3][7].add(points[7]);
 
+        // 3 <-> 8
+        wayPoint[3][8].add(points[3]);
+        wayPoint[3][8].add(points[8]);
+
         //-----------------------------------------Point 4---------------------------------------------
 
        // 0-4
@@ -174,6 +179,10 @@ public class WayPointsHelper {
         wayPoint[4][7].add(points[4]);
         wayPoint[4][7].add(new Point(10.7630545575701,-8.4938681311779, 4.9));
         wayPoint[4][7].add(points[7]);
+
+        // 4 <-> 8
+        wayPoint[4][8].add(points[4]);
+        wayPoint[4][8].add(points[8]);
 
         //-----------------------------------------Point 5---------------------------------------------
         // 5 <-> 6
@@ -198,7 +207,7 @@ public class WayPointsHelper {
 
         // 6 <-> 8
         wayPoint[6][8].add(points[6]);
-        wayPoint[6][8].add(new Point(11.22, -8.24, 4.85));
+//        wayPoint[6][8].add(new Point(11.22, -8.20, 4.85));
         wayPoint[6][8].add(points[8]);
     }
 

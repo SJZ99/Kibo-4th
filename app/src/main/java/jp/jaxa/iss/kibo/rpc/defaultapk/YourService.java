@@ -13,15 +13,17 @@ import jp.jaxa.iss.kibo.rpc.api.KiboRpcService;
 public class YourService extends KiboRpcService {
     static final boolean isDebug = true;
     static final int LOOP_MAX = 5;
+    static int currPoint = 0;
 
     /*************** move ***************/
-    private void moveTo(Point p, Quaternion q) {
+    private boolean moveTo(Point p, Quaternion q) {
         int loopCounter = 0;
         Result result = null;
         do {
             result = api.moveTo(p, q, isDebug);
             ++loopCounter;
         } while(result != null && !result.hasSucceeded() && loopCounter < LOOP_MAX);
+        return result != null && result.hasSucceeded();
     }
 
     private void move(int from, int to) {
@@ -39,20 +41,25 @@ public class YourService extends KiboRpcService {
         }
 
         ArrayList<Point> points = WayPointsHelper.getWayPoint(from, to);
+        boolean isSuccess = false;
         if(isReversed) {
             for(int i = points.size() - 2; i >= 0; --i) {
-                moveTo(points.get(i), rotation);
+                isSuccess = moveTo(points.get(i), rotation);
             }
         } else {
             for(int i = 1; i < points.size(); ++i) {
-                moveTo(points.get(i), rotation);
+                isSuccess = moveTo(points.get(i), rotation);
             }
+        }
+
+        if(isSuccess) {
+            currPoint = isReversed ? from : to;
         }
     }
     /*************** move end ***************/
 
     private void decide(List<Point> points) {
-        Point p = api.getRobotKinematics().getPosition();
+        Point p = WayPointsHelper.getPoint(currPoint);
         Collections.sort(points, new WayPointsHelper.PointComparator(p));
     }
 
@@ -61,7 +68,7 @@ public class YourService extends KiboRpcService {
         api.startMission();
 
 
-        int a = 1, b = 8, c = 5, d=4;
+        int a = 4, b = 8, c = 5, d=4;
         move(0, a);
         api.laserControl(true);
         api.takeTargetSnapshot(a);
