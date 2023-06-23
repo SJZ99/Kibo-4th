@@ -67,7 +67,6 @@ public class YourService extends KiboRpcService {
     protected void runPlan1(){
         api.startMission();
 
-
         int a = 1, b = 5, c = 6, d = 5;
         move(0, a);
         api.laserControl(true);
