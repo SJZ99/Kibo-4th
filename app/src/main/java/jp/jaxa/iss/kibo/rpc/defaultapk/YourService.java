@@ -1,6 +1,8 @@
 package jp.jaxa.iss.kibo.rpc.defaultapk;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import gov.nasa.arc.astrobee.Result;
 import gov.nasa.arc.astrobee.types.Point;
@@ -49,23 +51,28 @@ public class YourService extends KiboRpcService {
     }
     /*************** move end ***************/
 
+    private void decide(List<Point> points) {
+        Point p = api.getRobotKinematics().getPosition();
+        Collections.sort(points, new WayPointsHelper.PointComparator(p));
+    }
+
     @Override
     protected void runPlan1(){
         api.startMission();
 
-        int a = 6, b = 7, c = 0;
+        int a = 1, b = 8, c = 1;
         move(0, a);
         api.laserControl(true);
         api.takeTargetSnapshot(a);
 
-        move(a, b);
-        api.saveMatImage(api.getMatNavCam(), "qr.jpg");
+//        move(a, b);
+//        api.saveMatImage(api.getMatNavCam(), "qr.jpg");
 //        api.laserControl(true);
 //        api.takeTargetSnapshot(b);
-
-        move(b, a);
-        api.laserControl(true);
-        api.takeTargetSnapshot(a);
+//
+//        move(b, c);
+//        api.laserControl(true);
+//        api.takeTargetSnapshot(a);
 
         api.reportMissionCompletion("");
     }
