@@ -9,10 +9,6 @@ import java.util.Map;
 import gov.nasa.arc.astrobee.types.Point;
 import gov.nasa.arc.astrobee.types.Quaternion;
 
-/*
- * Created by Jian Zhe Su on 6/20/2023.
- */
-
 public class WayPointsHelper {
     private static final int SIZE = 9;
     private static ArrayList<Point>[][] wayPoint = new ArrayList[SIZE][SIZE];
