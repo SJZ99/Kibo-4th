@@ -1,6 +1,7 @@
 package jp.jaxa.iss.kibo.rpc.defaultapk;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 
 import java.util.Map;
@@ -13,20 +14,21 @@ import gov.nasa.arc.astrobee.types.Quaternion;
  */
 
 public class WayPointsHelper {
-    private static final int SIZE = 8;
+    private static final int SIZE = 9;
     private static ArrayList<Point>[][] wayPoint = new ArrayList[SIZE][SIZE];
     private static Map<Integer, Quaternion> targetRotation = new HashMap<>();
-    private static Point[] points = new Point[8];
+    private static Point[] points = new Point[SIZE];
 
     static {
         points[0] = new Point(9.815, -9.806, 4.293);
         points[1] = new Point(11.27 - 0.06, -9.92 - 0.05, 5.29 + 0.185);
-        points[2] = new Point(10.612 - 0.155, -9.07 - 0.125, 4.48 - 0.075);
+        points[2] = new Point(10.612 - 0.155, -9.07 - 0.125, 4.58);
         points[3] = new Point(10.71, -7.7 - 0.068, 4.48);
         points[4] = new Point(10.51, -6.718 + 0.1, 5.1804 + 0.03);
         points[5] = new Point(11.114 - 0.07, -7.97 + 0.05, 5.33);
-        points[6] = new Point(11.355, -8.993 - 0.048, 4.78 + 0.16);
+        points[6] = new Point(11.355, -8.993 - 0.053, 4.78 + 0.16);
         points[7] = new Point(11.369, -8.55, 4.48);
+        points[8] = new Point(11.143, -6.76, 4.96);
 
         wayPointInit();
         targetRotationInit();
@@ -49,6 +51,7 @@ public class WayPointsHelper {
         targetRotation.put(5, new Quaternion(-0.5f, -0.5f, -0.5f, 0.5f));
         targetRotation.put(6, new Quaternion(0, 0, 0, 1));
         targetRotation.put(7, new Quaternion(0, 0.707f, 0, 0.707f));
+        targetRotation.put(8, new Quaternion(0, 0, -0.707f, 0.707f));
     }
 
     private static void addWayPoint() {
@@ -65,12 +68,12 @@ public class WayPointsHelper {
 
         // 1 <-> 2
         wayPoint[1][2].add(points[1]);
-        wayPoint[1][2].add(new Point(10.99, -9.45, 5.40));
+        wayPoint[1][2].add(new Point(10.99, -9.45, 5.35));
         wayPoint[1][2].add(points[2]);
 
         // 1 <-> 3
         wayPoint[1][3].add(points[1]);
-        wayPoint[1][3].add(new Point(10.88, -9.25, 5.40));
+        wayPoint[1][3].add(new Point(10.88, -9.25, 5.35));
         wayPoint[1][3].add(new Point(10.75, -8.1, 4.7));
         wayPoint[1][3].add(points[3]);
 
@@ -91,6 +94,10 @@ public class WayPointsHelper {
         wayPoint[1][7].add(points[1]);
         wayPoint[1][7].add(points[7]);
 
+        // 1 <-> 8
+        wayPoint[1][8].add(points[1]);
+        wayPoint[1][8].add(new Point(11.22, -8.20, 4.83));
+        wayPoint[1][8].add(points[8]);
 
         //-----------------------------------------Point 2---------------------------------------------
         // 2 <-> 3
@@ -100,17 +107,17 @@ public class WayPointsHelper {
 
         // 2 <-> 4
         wayPoint[2][4].add(points[2]);
-        wayPoint[2][4].add(new Point(10.58, -8.32 , 5));
+//        wayPoint[2][4].add(new Point(10.58, -8.32 , 5));
         wayPoint[2][4].add(points[4]);
 
         // 2 <-> 5
         wayPoint[2][5].add(points[2]);
-        wayPoint[2][5].add(new Point(10.612 - 0.155, -9.07 - 0.125,5.33));
+//        wayPoint[2][5].add(new Point(10.612 - 0.155, -9.07 - 0.125,5.33));
         wayPoint[2][5].add(points[5]);
 
         // 2 <-> 6
-        wayPoint[2][6].add(points[6]);
-        wayPoint[2][6].add(new Point(10.92,-9.30,4.48));
+        wayPoint[2][6].add(points[2]);
+//        wayPoint[2][6].add(new Point(10.92,-9.30,4.48));
         wayPoint[2][6].add(points[6]);
 
         // 2 <-> 7
@@ -152,6 +159,10 @@ public class WayPointsHelper {
         wayPoint[3][7].add(new Point(11.355, -8.993, 4.78));
         wayPoint[3][7].add(points[7]);
 
+        // 3 <-> 8
+        wayPoint[3][8].add(points[3]);
+        wayPoint[3][8].add(points[8]);
+
         //-----------------------------------------Point 4---------------------------------------------
 
        // 0-4
@@ -174,15 +185,19 @@ public class WayPointsHelper {
         wayPoint[4][7].add(new Point(10.7630545575701,-8.4938681311779, 4.9));
         wayPoint[4][7].add(points[7]);
 
+        // 4 <-> 8
+        wayPoint[4][8].add(points[4]);
+        wayPoint[4][8].add(points[8]);
+
         //-----------------------------------------Point 5---------------------------------------------
         // 5 <-> 6
         wayPoint[5][6].add(points[5]);
-        wayPoint[5][6].add(new Point(11.20,-8.33,5));
+        wayPoint[5][6].add(new Point(11.20,-8.33,5.5));
         wayPoint[5][6].add(points[6]);
 
         // 5 <-> 7
         wayPoint[5][7].add(points[5]);
-        wayPoint[5][7].add(new Point(11.20,-8.33,5));
+        wayPoint[5][7].add(new Point(11.20,-8.33,5.5));
         wayPoint[5][7].add(points[7]);
 
 
@@ -194,6 +209,11 @@ public class WayPointsHelper {
         // 6 <-> 7
         wayPoint[6][7].add(points[6]);
         wayPoint[6][7].add(points[7]);
+
+        // 6 <-> 8
+        wayPoint[6][8].add(points[6]);
+//        wayPoint[6][8].add(new Point(11.22, -8.20, 4.85));
+        wayPoint[6][8].add(points[8]);
     }
 
 
@@ -203,5 +223,32 @@ public class WayPointsHelper {
 
     public static ArrayList<Point> getWayPoint(int from, int to) {
         return wayPoint[from][to];
+    }
+
+    public static Point getPoint(int p) {
+        return points[p];
+    }
+
+    public static class PointComparator implements Comparator<Point> {
+        private Point now;
+        public PointComparator(Point now) {
+            this.now = now;
+        }
+
+        @Override
+        public int compare(Point p1, Point p2) {
+            double d1 = getDistanceSquare(p1);
+            double d2 = getDistanceSquare(p2);
+            if(d1 < d2) {
+                return 1;
+            } else if (d1 > d2) {
+                return -1;
+            }
+            return 0;
+        }
+
+        private double getDistanceSquare(Point p) {
+            return Math.pow(p.getX() - now.getX(), 2) + Math.pow(p.getY() - now.getY(), 2) + Math.pow(p.getZ() - now.getZ(), 2);
+        }
     }
 }

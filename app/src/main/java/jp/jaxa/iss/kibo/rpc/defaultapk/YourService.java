@@ -1,6 +1,8 @@
 package jp.jaxa.iss.kibo.rpc.defaultapk;
 
 import java.util.ArrayList;
+
+import java.util.Collections;
 import java.util.List;
 
 import gov.nasa.arc.astrobee.Result;
@@ -12,15 +14,17 @@ import jp.jaxa.iss.kibo.rpc.api.KiboRpcService;
 public class YourService extends KiboRpcService {
     static final boolean isDebug = true;
     static final int LOOP_MAX = 5;
+    static int currPoint = 0;
 
     /*************** move ***************/
-    private void moveTo(Point p, Quaternion q) {
+    private boolean moveTo(Point p, Quaternion q) {
         int loopCounter = 0;
         Result result = null;
         do {
             result = api.moveTo(p, q, isDebug);
             ++loopCounter;
         } while(result != null && !result.hasSucceeded() && loopCounter < LOOP_MAX);
+        return result != null && result.hasSucceeded();
     }
 
     private void move(int from, int to) {
@@ -38,17 +42,27 @@ public class YourService extends KiboRpcService {
         }
 
         ArrayList<Point> points = WayPointsHelper.getWayPoint(from, to);
+        boolean isSuccess = false;
         if(isReversed) {
             for(int i = points.size() - 2; i >= 0; --i) {
-                moveTo(points.get(i), rotation);
+                isSuccess = moveTo(points.get(i), rotation);
             }
         } else {
             for(int i = 1; i < points.size(); ++i) {
-                moveTo(points.get(i), rotation);
+                isSuccess = moveTo(points.get(i), rotation);
             }
+        }
+
+        if(isSuccess) {
+            currPoint = isReversed ? from : to;
         }
     }
     /*************** move end ***************/
+
+    private void decide(List<Point> points) {
+        Point p = WayPointsHelper.getPoint(currPoint);
+        Collections.sort(points, new WayPointsHelper.PointComparator(p));
+    }
 
     @Override
     protected void runPlan1(){
@@ -73,9 +87,8 @@ public class YourService extends KiboRpcService {
 //        api.takeTargetSnapshot(d);
 //
 //        api.reportMissionCompletion("");
-        Integer temp =0;
 
-        int loop_count = 4;
+        Integer temp =0;
 
         while(true){
 
@@ -89,7 +102,6 @@ public class YourService extends KiboRpcService {
             }
 
 
-            loop_count--;
 
             if (api.getTimeRemaining().get(1) < 60000){
                 break;
