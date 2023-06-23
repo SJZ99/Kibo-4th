@@ -79,16 +79,7 @@ public class YourService extends KiboRpcService {
     private void qrCodeMission() {
         move(0, 7);
         message = QrCodeHelper.scan();
-    }
-
-    private int guess(List<Integer> activated) {
-        List<Integer> condidates = new ArrayList<>(6);
-        for(int i = 1; i <= 6; ++i) {
-            condidates.add(i);
-        }
-
-        condidates.remove(activated);
-
+        hasScanned = !message.equals("");
     }
 
     @Override
@@ -98,9 +89,8 @@ public class YourService extends KiboRpcService {
         // 0 -> 7, and scan
         qrCodeMission();
 
-        boolean isIdle = false;
         // 55 sec for moving to the goal
-        while(api.getTimeRemaining().get(1) > 55000) {
+        while(api.getTimeRemaining().get(1) > 95000) {
             List<Integer> activatedTargets = api.getActiveTargets();
 
             // sort, at most two point, greedy
@@ -108,12 +98,12 @@ public class YourService extends KiboRpcService {
 
             for(WayPointsHelper.MyPoint target : points) {
                 if(api.getTimeRemaining().get(0) < PathLengthHelper.getTime(currPoint, target.id)) {
-                    isIdle = true;
                     break;
                 }
                 move(currPoint, target.id);
                 api.laserControl(true);
                 api.takeTargetSnapshot(target.id);
+                points.remove(target);
             }
         }
 
