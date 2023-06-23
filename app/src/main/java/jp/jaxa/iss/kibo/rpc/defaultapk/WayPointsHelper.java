@@ -9,10 +9,6 @@ import java.util.Map;
 import gov.nasa.arc.astrobee.types.Point;
 import gov.nasa.arc.astrobee.types.Quaternion;
 
-/*
- * Created by Jian Zhe Su on 6/20/2023.
- */
-
 public class WayPointsHelper {
     private static final int SIZE = 9;
     private static ArrayList<Point>[][] wayPoint = new ArrayList[SIZE][SIZE];
@@ -224,20 +220,30 @@ public class WayPointsHelper {
         return points[p];
     }
 
-    public static class PointComparator implements Comparator<Point> {
+    public static class MyPoint {
+        public Point p;
+        public int id;
+
+        public MyPoint(int id, Point p) {
+            this.id = id;
+            this.p = p;
+        }
+    }
+
+    public static class PointComparator implements Comparator<MyPoint> {
         private Point now;
         public PointComparator(Point now) {
             this.now = now;
         }
 
         @Override
-        public int compare(Point p1, Point p2) {
-            double d1 = getDistanceSquare(p1);
-            double d2 = getDistanceSquare(p2);
+        public int compare(MyPoint p1, MyPoint p2) {
+            double d1 = getDistanceSquare(p1.p);
+            double d2 = getDistanceSquare(p2.p);
             if(d1 < d2) {
-                return 1;
-            } else if (d1 > d2) {
                 return -1;
+            } else if (d1 > d2) {
+                return 1;
             }
             return 0;
         }

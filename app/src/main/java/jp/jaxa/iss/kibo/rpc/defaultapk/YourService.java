@@ -14,6 +14,8 @@ public class YourService extends KiboRpcService {
     static final boolean isDebug = true;
     static final int LOOP_MAX = 5;
     static int currPoint = 0;
+    static boolean hasScanned = false;
+    static String message = "";
 
     /*************** move ***************/
     private boolean moveTo(Point p, Quaternion q) {
@@ -58,34 +60,73 @@ public class YourService extends KiboRpcService {
     }
     /*************** move end ***************/
 
-    private void decide(List<Point> points) {
-        Point p = WayPointsHelper.getPoint(currPoint);
+    private List<WayPointsHelper.MyPoint> sort(List<Integer> targets) {
+        Point p = api.getRobotKinematics().getPosition();
+
+        // list for id and point
+        List<WayPointsHelper.MyPoint> points = new ArrayList<>(targets.size());
+
+        // map
+        for(Integer i : targets) {
+            points.add(new WayPointsHelper.MyPoint(i, WayPointsHelper.getPoint(i)));
+        }
+
+        // sort
         Collections.sort(points, new WayPointsHelper.PointComparator(p));
+        return points;
+    }
+
+    private void qrCodeMission() {
+        move(0, 7);
+        message = QrCodeHelper.scan();
+        hasScanned = !message.equals("");
     }
 
     @Override
     protected void runPlan1(){
         api.startMission();
 
-        int a = 1, b = 5, c = 6, d = 5;
-        move(0, a);
-        api.laserControl(true);
-        api.takeTargetSnapshot(a);
-
-
-        move(a, b);
+//        int a = 1, b = 5, c = 6, d = 5;
+//        move(0, a);
+//        api.laserControl(true);
+//        api.takeTargetSnapshot(a);
+//        move(a, b);
 //        api.saveMatImage(api.getMatNavCam(), "qr.jpg");
-        api.laserControl(true);
-        api.takeTargetSnapshot(b);
+//        api.laserControl(true);
+//        api.takeTargetSnapshot(b);
+//
+//        move(b, c);
+//        api.laserControl(true);
+//        api.takeTargetSnapshot(c);
+//
+//        move(c, d);
+//        api.laserControl(true);
+//        api.takeTargetSnapshot(d);
 
-        move(b, c);
-        api.laserControl(true);
-        api.takeTargetSnapshot(c);
+        // 0 -> 7, and scan
+        qrCodeMission();
 
-        move(c, d);
-        api.laserControl(true);
-        api.takeTargetSnapshot(d);
+        // 55 sec for moving to the goal
+        while(api.getTimeRemaining().get(1) > 95000) {
+            List<Integer> activatedTargets = api.getActiveTargets();
 
+            // sort, at most two point, greedy
+            List<WayPointsHelper.MyPoint> points = sort(activatedTargets);
+
+
+            for(WayPointsHelper.MyPoint target : points) {
+                if(api.getTimeRemaining().get(0) < PathLengthHelper.getTime(currPoint, target.id)) {
+                    break;
+                }
+                move(currPoint, target.id);
+                api.laserControl(true);
+                api.takeTargetSnapshot(target.id);
+                points.remove(target);
+            }
+        }
+
+        api.notifyGoingToGoal();
+        move(currPoint, 8);
         api.reportMissionCompletion("");
     }
 }
