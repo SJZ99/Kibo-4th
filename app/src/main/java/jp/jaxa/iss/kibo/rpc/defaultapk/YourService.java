@@ -1,6 +1,7 @@
 package jp.jaxa.iss.kibo.rpc.defaultapk;
 
 import java.util.ArrayList;
+
 import java.util.Collections;
 import java.util.List;
 
@@ -90,6 +91,7 @@ public class YourService extends KiboRpcService {
 //        move(0, a);
 //        api.laserControl(true);
 //        api.takeTargetSnapshot(a);
+
 //        move(a, b);
 ////        api.saveMatImage(api.getMatNavCam(), "qr.jpg");
 //        api.laserControl(true);
@@ -127,6 +129,33 @@ public class YourService extends KiboRpcService {
         api.notifyGoingToGoal();
         move(currPoint, 8);
         api.reportMissionCompletion("");
+
+
+//        Integer temp =0;
+//
+//        while(true){
+//
+//            List< Integer> list = api.getActiveTargets();
+//
+//            for (int i=0; i< list.size(); i++){
+//                move(temp, list.get(i));
+//                api.laserControl(true);
+//                api.takeTargetSnapshot(list.get(i));
+//                temp=list.get(i);
+//            }
+//
+//
+//
+//            if (api.getTimeRemaining().get(1) < 60000){
+//                break;
+//            }
+//
+//        }
+//        api.notifyGoingToGoal();
+//        move(temp, 8);
+//        api.reportMissionCompletion(" ");
     }
+
+
 }
 
