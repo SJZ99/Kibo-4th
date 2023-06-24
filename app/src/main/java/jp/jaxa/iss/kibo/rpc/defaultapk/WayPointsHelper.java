@@ -54,9 +54,10 @@ public class WayPointsHelper {
         //-----------------------------------------Point 1---------------------------------------------
 
        // 0-7
-        wayPoint[0][1].add(points[0]);
-        wayPoint[0][1].add(new Point (11,-9.5, 4.48));
-        wayPoint[0][1].add(points[1]);
+        wayPoint[0][7].add(points[0]);
+        wayPoint[0][7].add(new Point (11,-9.5, 4.48));
+        wayPoint[0][7].add(points[7]);
+
         // 0 <-> 1
         wayPoint[0][1].add(points[0]);
         wayPoint[0][1].add(new Point(10.6, -9.9, 4.9));
@@ -69,13 +70,11 @@ public class WayPointsHelper {
 
         // 1 <-> 3
         wayPoint[1][3].add(points[1]);
-        wayPoint[1][3].add(new Point(10.88, -9.25, 5.35));
-        wayPoint[1][3].add(new Point(10.75, -8.1, 4.7));
+        wayPoint[1][3].add(new Point(10.61, -8.1, 4.92));
         wayPoint[1][3].add(points[3]);
 
         // 1 <-> 4
         wayPoint[1][4].add(points[1]);
-        wayPoint[1][4].add(new Point(10.85, -9.45, 5.38));
         wayPoint[1][4].add(points[4]);
 
         // 1 <-> 5
@@ -92,10 +91,14 @@ public class WayPointsHelper {
 
         // 1 <-> 8
         wayPoint[1][8].add(points[1]);
-        wayPoint[1][8].add(new Point(11.22, -8.20, 4.83));
+        wayPoint[1][8].add(new Point(11.14, -8.20, 4.83));
         wayPoint[1][8].add(points[8]);
 
         //-----------------------------------------Point 2---------------------------------------------
+        // 0 <-> 2
+        wayPoint[0][2].add(points[0]);
+        wayPoint[0][2].add(points[2]);
+
         // 2 <-> 3
         wayPoint[2][3].add(points[2]);
         wayPoint[2][3].add(new Point(10.66 , -8.38,5));
@@ -103,23 +106,25 @@ public class WayPointsHelper {
 
         // 2 <-> 4
         wayPoint[2][4].add(points[2]);
-//        wayPoint[2][4].add(new Point(10.58, -8.32 , 5));
         wayPoint[2][4].add(points[4]);
 
         // 2 <-> 5
         wayPoint[2][5].add(points[2]);
-//        wayPoint[2][5].add(new Point(10.612 - 0.155, -9.07 - 0.125,5.33));
         wayPoint[2][5].add(points[5]);
 
         // 2 <-> 6
         wayPoint[2][6].add(points[2]);
-//        wayPoint[2][6].add(new Point(10.92,-9.30,4.48));
         wayPoint[2][6].add(points[6]);
 
         // 2 <-> 7
         wayPoint[2][7].add(points[2]);
         wayPoint[2][7].add(new Point(10.612 - 0.155, -9.07 - 0.125, 4.94));
         wayPoint[2][7].add(points[7]);
+
+        // 2 <-> 8
+        wayPoint[2][8].add(points[2]);
+        wayPoint[2][8].add(new Point(10.9, -8.20, 4.83));
+        wayPoint[2][8].add(points[8]);
 
 
         //-----------------------------------------Point 3---------------------------------------------
@@ -128,7 +133,6 @@ public class WayPointsHelper {
         wayPoint[0][3].add(points[0]);
 
         wayPoint[0][3].add(new Point(  10.6,-8.5,4.9));
-//        wayPoint[0][3].add(new Point(10.411232142903,-9.7023593629268,4.9));
         wayPoint[0][3].add(new Point(10.6006913884673,-7.8709199891385,4.9));
         wayPoint[0][3].add(points[3]);
 
@@ -139,11 +143,10 @@ public class WayPointsHelper {
 
         // 3 <-> 5
         wayPoint[3][5].add(points[3]);
-        wayPoint[3][5].add(new Point(10.665747528562,-7.6568514959995,  5.33));
+        wayPoint[3][5].add(new Point(10.9, -7.58,  5.25));
         wayPoint[3][5].add(points[5]);
 
         // 3 <-> 6
-        // wayPoint[3][6].add(new Point(10.7462457251825,-7.7407861997722,  4.78));
         wayPoint[3][6].add(points[3]);
         wayPoint[3][6].add(new Point(10.6974195342895,-8.101652195976,  4.78));
         wayPoint[3][6].add(points[6]);
@@ -160,23 +163,20 @@ public class WayPointsHelper {
         wayPoint[3][8].add(points[8]);
 
         //-----------------------------------------Point 4---------------------------------------------
-
-       // 0-4
+        // 0 <-> 4
         wayPoint[0][4].add(points[0]);
         wayPoint[0][4].add(new Point(10.411232142903,-9.7023593629268, 5.185));
         wayPoint[0][4].add(points[4]);
 
         // 4 <-> 5
         wayPoint[4][5].add(points[4]);
-        wayPoint[4][5].add(new Point( 10.4397212574624,-7.5187431047674, 5.33));
         wayPoint[4][5].add(points[5]);
 
-        //4-6
+        // 4 <-> 6
         wayPoint[4][6].add(points[4]);
-        wayPoint[4][6].add(new Point( 10.5385173783457,-8.6727181907114, 4.8));
         wayPoint[4][6].add(points[6]);
 
-        //4-7
+        // 4 <-> 7
         wayPoint[4][7].add(points[4]);
         wayPoint[4][7].add(new Point(10.7630545575701,-8.4938681311779, 4.9));
         wayPoint[4][7].add(points[7]);
@@ -196,6 +196,9 @@ public class WayPointsHelper {
         wayPoint[5][7].add(new Point(11.20,-8.33,5.5));
         wayPoint[5][7].add(points[7]);
 
+        // 5 <-> 8
+        wayPoint[5][8].add(points[5]);
+        wayPoint[5][8].add(points[8]);
 
         //-----------------------------------------Point 6---------------------------------------------
         // 0 <-> 6
@@ -208,7 +211,6 @@ public class WayPointsHelper {
 
         // 6 <-> 8
         wayPoint[6][8].add(points[6]);
-//        wayPoint[6][8].add(new Point(11.22, -8.20, 4.85));
         wayPoint[6][8].add(points[8]);
     }
 

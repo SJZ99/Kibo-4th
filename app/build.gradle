@@ -1,9 +1,9 @@
 apply plugin: 'com.android.application'
 
-
 android {
     compileSdkVersion 26
     buildToolsVersion "26.0.2"
+
     defaultConfig {
         applicationId "jp.jaxa.iss.kibo.rpc.defaultapk" +
                 ""
@@ -50,4 +50,7 @@ dependencies {
     }
     testCompile 'junit:junit:4.12'
     compile 'com.quickbirdstudios:opencv:3.4.4-contrib'
+
+    compile 'com.journeyapps:zxing-android-embedded:3.6.0'
+
 }

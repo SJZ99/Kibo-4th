@@ -1,9 +1,21 @@
 package jp.jaxa.iss.kibo.rpc.defaultapk;
 
+import android.graphics.Bitmap;
+import android.graphics.Matrix;
+
+import com.google.zxing.BinaryBitmap;
+import com.google.zxing.DecodeHintType;
+import com.google.zxing.RGBLuminanceSource;
+import com.google.zxing.common.GlobalHistogramBinarizer;
+import com.google.zxing.common.HybridBinarizer;
+import com.google.zxing.qrcode.QRCodeReader;
+
 import java.util.ArrayList;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import gov.nasa.arc.astrobee.Result;
 import gov.nasa.arc.astrobee.types.Point;
@@ -79,7 +91,33 @@ public class YourService extends KiboRpcService {
 
     private void qrCodeMission() {
         move(0, 7);
-        message = QrCodeHelper.scan();
+//        message = QrCodeHelper.scan();
+        Bitmap bitmap = api.getBitmapNavCam();
+        try {
+
+            Matrix matrix = new Matrix();
+            matrix.preScale(-1.0f, -1.0f);
+
+            bitmap = Bitmap.createBitmap(bitmap, 361, 293, 548, 418, matrix, true);
+            api.saveBitmapImage(bitmap, "crop.jpg");
+            int width = bitmap.getWidth();
+            int height = bitmap.getHeight();
+            int[] pixel = new int[width * height];
+            bitmap.getPixels(pixel,0, width, 0, 0, width, height);
+
+            RGBLuminanceSource rgbLuminanceSource = new RGBLuminanceSource(width / 2,height / 2, pixel);
+            BinaryBitmap binaryBitmap = new BinaryBitmap(new GlobalHistogramBinarizer(rgbLuminanceSource));
+            Map<DecodeHintType, Object> hint = new HashMap<>();
+//            hint.put(DecodeHintType.PURE_BARCODE, Boolean.TRUE);
+//            hint.put(DecodeHintType.CHARACTER_SET, "UTF-8");
+
+            com.google.zxing.Result ans = new QRCodeReader().decode(binaryBitmap);
+
+            message = ans.getText();
+
+        } catch (Exception e) {
+            message = "";
+        }
         hasScanned = !message.equals("");
     }
 
@@ -87,16 +125,17 @@ public class YourService extends KiboRpcService {
     protected void runPlan1(){
         api.startMission();
 
-//        int a = 3, b = 4, c = 8, d = 5;
-//        move(0, a);
-//        api.laserControl(true);
-//        api.takeTargetSnapshot(a);
+        qrCodeMission();
+
+        int a = 5, b = 6, c = 1, d = 4;
+        move(7, a);
+        api.laserControl(true);
+        api.takeTargetSnapshot(a);
 
 //        move(a, b);
-////        api.saveMatImage(api.getMatNavCam(), "qr.jpg");
 //        api.laserControl(true);
 //        api.takeTargetSnapshot(b);
-
+//
 //        move(b, c);
 //        api.laserControl(true);
 //        api.takeTargetSnapshot(c);
@@ -109,26 +148,26 @@ public class YourService extends KiboRpcService {
 //        qrCodeMission();
 
         // 55 sec for moving to the goal
-        while(api.getTimeRemaining().get(1) > 90000) {
-            List<Integer> activatedTargets = api.getActiveTargets();
-
-            // sort, at most two point, greedy
-            List<WayPointsHelper.MyPoint> points = sort(activatedTargets);
-
-
-            for(WayPointsHelper.MyPoint target : points) {
-                if(api.getTimeRemaining().get(0) < 41000 || api.getTimeRemaining().get(1) < 85000) {
-                    break;
-                }
-                move(currPoint, target.id);
-                api.laserControl(true);
-                api.takeTargetSnapshot(target.id);
-            }
-        }
+//        while(api.getTimeRemaining().get(1) > 90000) {
+//            List<Integer> activatedTargets = api.getActiveTargets();
+//
+//            // sort, at most two point, greedy
+//            List<WayPointsHelper.MyPoint> points = sort(activatedTargets);
+//
+//
+//            for(WayPointsHelper.MyPoint target : points) {
+//                if(api.getTimeRemaining().get(0) < 41000 || api.getTimeRemaining().get(1) < 85000) {
+//                    break;
+//                }
+//                move(currPoint, target.id);
+//                api.laserControl(true);
+//                api.takeTargetSnapshot(target.id);
+//            }
+//        }
 
         api.notifyGoingToGoal();
         move(currPoint, 8);
-        api.reportMissionCompletion("");
+        api.reportMissionCompletion(message);
 
 
 //        Integer temp =0;
