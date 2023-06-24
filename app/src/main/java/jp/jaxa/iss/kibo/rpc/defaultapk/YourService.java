@@ -2,6 +2,7 @@ package jp.jaxa.iss.kibo.rpc.defaultapk;
 
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
+import android.util.Log;
 
 import com.google.zxing.BinaryBitmap;
 import com.google.zxing.DecodeHintType;
@@ -105,11 +106,11 @@ public class YourService extends KiboRpcService {
             int[] pixel = new int[width * height];
             bitmap.getPixels(pixel,0, width, 0, 0, width, height);
 
-            RGBLuminanceSource rgbLuminanceSource = new RGBLuminanceSource(width / 2,height / 2, pixel);
+            RGBLuminanceSource rgbLuminanceSource = new RGBLuminanceSource(width, height, pixel);
             BinaryBitmap binaryBitmap = new BinaryBitmap(new GlobalHistogramBinarizer(rgbLuminanceSource));
             Map<DecodeHintType, Object> hint = new HashMap<>();
-//            hint.put(DecodeHintType.PURE_BARCODE, Boolean.TRUE);
-//            hint.put(DecodeHintType.CHARACTER_SET, "UTF-8");
+            hint.put(DecodeHintType.PURE_BARCODE, Boolean.TRUE);
+            hint.put(DecodeHintType.CHARACTER_SET, "UTF-8");
 
             com.google.zxing.Result ans = new QRCodeReader().decode(binaryBitmap);
 
@@ -117,6 +118,7 @@ public class YourService extends KiboRpcService {
 
         } catch (Exception e) {
             message = "";
+            Log.e("qrcodeE", e.getMessage());
         }
         hasScanned = !message.equals("");
     }
