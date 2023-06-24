@@ -86,15 +86,15 @@ public class YourService extends KiboRpcService {
     protected void runPlan1(){
         api.startMission();
 
-//        int a = 1, b = 5, c = 6, d = 5;
+//        int a = 3, b = 4, c = 8, d = 5;
 //        move(0, a);
 //        api.laserControl(true);
 //        api.takeTargetSnapshot(a);
 //        move(a, b);
-//        api.saveMatImage(api.getMatNavCam(), "qr.jpg");
+////        api.saveMatImage(api.getMatNavCam(), "qr.jpg");
 //        api.laserControl(true);
 //        api.takeTargetSnapshot(b);
-//
+
 //        move(b, c);
 //        api.laserControl(true);
 //        api.takeTargetSnapshot(c);
@@ -104,10 +104,10 @@ public class YourService extends KiboRpcService {
 //        api.takeTargetSnapshot(d);
 
         // 0 -> 7, and scan
-        qrCodeMission();
+//        qrCodeMission();
 
         // 55 sec for moving to the goal
-        while(api.getTimeRemaining().get(1) > 95000) {
+        while(api.getTimeRemaining().get(1) > 90000) {
             List<Integer> activatedTargets = api.getActiveTargets();
 
             // sort, at most two point, greedy
@@ -115,13 +115,12 @@ public class YourService extends KiboRpcService {
 
 
             for(WayPointsHelper.MyPoint target : points) {
-                if(api.getTimeRemaining().get(0) < PathLengthHelper.getTime(currPoint, target.id)) {
+                if(api.getTimeRemaining().get(0) < 41000 || api.getTimeRemaining().get(1) < 85000) {
                     break;
                 }
                 move(currPoint, target.id);
                 api.laserControl(true);
                 api.takeTargetSnapshot(target.id);
-                points.remove(target);
             }
         }
 
