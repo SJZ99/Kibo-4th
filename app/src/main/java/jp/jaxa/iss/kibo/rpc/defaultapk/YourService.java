@@ -1,24 +1,9 @@
 package jp.jaxa.iss.kibo.rpc.defaultapk;
 
 import android.graphics.Bitmap;
-import android.graphics.Matrix;
-import android.graphics.Path;
 import android.util.Log;
 
-import com.google.zxing.BinaryBitmap;
-import com.google.zxing.DecodeHintType;
-import com.google.zxing.RGBLuminanceSource;
-import com.google.zxing.common.GlobalHistogramBinarizer;
-import com.google.zxing.common.HybridBinarizer;
-import com.google.zxing.qrcode.QRCodeReader;
-import com.google.zxing.qrcode.encoder.QRCode;
-
 import java.util.ArrayList;
-
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import gov.nasa.arc.astrobee.Result;
 import gov.nasa.arc.astrobee.types.Point;
@@ -124,7 +109,7 @@ public class YourService extends KiboRpcService {
 //        qrTime -= api.getTimeRemaining().get(1);
 //        Log.i("TTime", "" + qrTime);
 
-        int to = 2;
+        int to = 6;
 //        long time = api.getTimeRemaining().get(1);
         move(currPoint, to);
 //        time -= api.getTimeRemaining().get(1);
@@ -141,7 +126,7 @@ public class YourService extends KiboRpcService {
 //        api.laserControl(true);
 //        api.takeTargetSnapshot(to);
 
-
+/*
         log("before");
         while(api.getTimeRemaining().get(1) > 25000 + PathLengthHelper.getTime(currPoint, 8)) {
             log("while loop");
@@ -247,6 +232,12 @@ public class YourService extends KiboRpcService {
             }
         }
 
+        if(PathLengthHelper.getTime(currPoint, 7) + PathLengthHelper.getTime(7, 8) < api.getTimeRemaining().get(1) + 5000) {
+            log("Qrcode mission");
+            log("remaining time: " + api.getTimeRemaining().get(1));
+            qrCodeMission();
+        }
+*/
         log("Start go to goal when remaining: " + api.getTimeRemaining().get(1));
         api.notifyGoingToGoal();
         move(currPoint, 8);
