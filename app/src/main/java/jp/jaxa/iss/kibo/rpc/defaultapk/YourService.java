@@ -2,6 +2,7 @@ package jp.jaxa.iss.kibo.rpc.defaultapk;
 
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
+import android.graphics.Path;
 import android.util.Log;
 
 import com.google.zxing.BinaryBitmap;
@@ -10,6 +11,7 @@ import com.google.zxing.RGBLuminanceSource;
 import com.google.zxing.common.GlobalHistogramBinarizer;
 import com.google.zxing.common.HybridBinarizer;
 import com.google.zxing.qrcode.QRCodeReader;
+import com.google.zxing.qrcode.encoder.QRCode;
 
 import java.util.ArrayList;
 
@@ -70,133 +72,186 @@ public class YourService extends KiboRpcService {
 
         if(isSuccess) {
             currPoint = isReversed ? from : to;
+            if(currPoint != 7 && currPoint != 8) {
+                api.laserControl(true);
+                api.takeTargetSnapshot(currPoint);
+            }
         }
     }
     /*************** move end ***************/
 
-    private List<WayPointsHelper.MyPoint> sort(List<Integer> targets) {
-        Point p = api.getRobotKinematics().getPosition();
-
-        // list for id and point
-        List<WayPointsHelper.MyPoint> points = new ArrayList<>(targets.size());
-
-        // map
-        for(Integer i : targets) {
-            points.add(new WayPointsHelper.MyPoint(i, WayPointsHelper.getPoint(i)));
-        }
-
-        // sort
-        Collections.sort(points, new WayPointsHelper.PointComparator(p));
-        return points;
-    }
-
     private void qrCodeMission() {
         move(0, 7);
-//        message = QrCodeHelper.scan();
         Bitmap bitmap = api.getBitmapNavCam();
-        try {
-
-            Matrix matrix = new Matrix();
-            matrix.preScale(-1.0f, -1.0f);
-
-            bitmap = Bitmap.createBitmap(bitmap, 361, 293, 548, 418, matrix, true);
-            api.saveBitmapImage(bitmap, "crop.jpg");
-            int width = bitmap.getWidth();
-            int height = bitmap.getHeight();
-            int[] pixel = new int[width * height];
-            bitmap.getPixels(pixel,0, width, 0, 0, width, height);
-
-            RGBLuminanceSource rgbLuminanceSource = new RGBLuminanceSource(width, height, pixel);
-            BinaryBitmap binaryBitmap = new BinaryBitmap(new GlobalHistogramBinarizer(rgbLuminanceSource));
-            Map<DecodeHintType, Object> hint = new HashMap<>();
-            hint.put(DecodeHintType.PURE_BARCODE, Boolean.TRUE);
-            hint.put(DecodeHintType.CHARACTER_SET, "UTF-8");
-
-            com.google.zxing.Result ans = new QRCodeReader().decode(binaryBitmap);
-
-            message = ans.getText();
-
-        } catch (Exception e) {
-            message = "";
-            Log.e("qrcodeE", e.getMessage());
+        message = QrCodeHelper.scan(bitmap);
+        log("Qrcode 1 finished");
+        // if failed, try again with consuming more time
+        if(message.equals("")) {
+            moveTo(WayPointsHelper.getPoint(7), WayPointsHelper.getTargetRotation(7));
+            message = QrCodeHelper.deepScan(bitmap);
+            log("Qrcode 2 finished");
         }
-        hasScanned = !message.equals("");
+
+        log("Qrcode finished with result: " + message);
+    }
+
+    private void processString() {
+        if(message.equals("JEM")) {
+            message = "STAY_AT_JEM";
+        } else if(message.equals("COLUMBUS")) {
+            message ="GO_TO_COLUMBUS";
+        } else if(message.equals("RACK1")) {
+            message = "CHECK_RACK_1";
+        } else if(message.equals("ARTROBEE")) {
+            message = "I_AM_HERE";
+        } else if(message.equals("INTBALL")) {
+            message = "LOOKING_FORWARD_TO_SEE_YOU";
+        } else {
+            message = "NO_PROBLEM";
+        }
+    }
+
+    public void log(String message) {
+        Log.i("Main", message);
     }
 
     @Override
     protected void runPlan1(){
         api.startMission();
 
-        qrCodeMission();
-
-        int a = 5, b = 6, c = 1, d = 4;
-        move(7, a);
-        api.laserControl(true);
-        api.takeTargetSnapshot(a);
-
-//        move(a, b);
-//        api.laserControl(true);
-//        api.takeTargetSnapshot(b);
-//
-//        move(b, c);
-//        api.laserControl(true);
-//        api.takeTargetSnapshot(c);
-//
-//        move(c, d);
-//        api.laserControl(true);
-//        api.takeTargetSnapshot(d);
-
-        // 0 -> 7, and scan
+        long qrTime = api.getTimeRemaining().get(1);
 //        qrCodeMission();
+//        qrTime -= api.getTimeRemaining().get(1);
+//        Log.i("TTime", "" + qrTime);
 
-        // 55 sec for moving to the goal
-//        while(api.getTimeRemaining().get(1) > 90000) {
-//            List<Integer> activatedTargets = api.getActiveTargets();
-//
-//            // sort, at most two point, greedy
-//            List<WayPointsHelper.MyPoint> points = sort(activatedTargets);
-//
-//
-//            for(WayPointsHelper.MyPoint target : points) {
-//                if(api.getTimeRemaining().get(0) < 41000 || api.getTimeRemaining().get(1) < 85000) {
-//                    break;
-//                }
-//                move(currPoint, target.id);
-//                api.laserControl(true);
-//                api.takeTargetSnapshot(target.id);
-//            }
-//        }
+        int to = 2;
+//        long time = api.getTimeRemaining().get(1);
+        move(currPoint, to);
+//        time -= api.getTimeRemaining().get(1);
+//        Log.i("TTime", "" + time);
 
+        api.laserControl(true);
+        api.takeTargetSnapshot(to);
+//
+//        move(currPoint, 4);
+//        api.laserControl(true);
+//        api.takeTargetSnapshot(to);
+//
+//        move(currPoint, 3);
+//        api.laserControl(true);
+//        api.takeTargetSnapshot(to);
+
+
+        log("before");
+        while(api.getTimeRemaining().get(1) > 25000 + PathLengthHelper.getTime(currPoint, 8)) {
+            log("while loop");
+            List<Integer> activatedTargets = api.getActiveTargets();
+
+            log("list size: " + activatedTargets.size());
+
+            // single activated target
+            if(activatedTargets.size() == 1) {
+                int targetPoint = activatedTargets.get(0);
+                log("Single point: " + targetPoint);
+                float time = PathLengthHelper.getTime(currPoint, targetPoint);
+                float toGoal = time + PathLengthHelper.getTime(targetPoint, 8);
+                float totalRemaining = api.getTimeRemaining().get(1), roundRemaining = api.getTimeRemaining().get(0);
+
+                log("time, remaining: " + time + ", " + roundRemaining);
+                log("toGoal, remaining: " + toGoal + ", " + totalRemaining);
+
+                if (time < roundRemaining && toGoal < totalRemaining) {
+                    log("time check ok, go to: " + targetPoint);
+                    move(currPoint, targetPoint);
+                } else if(time > roundRemaining) {
+                    // stand
+                } else if(toGoal > totalRemaining) {
+                    break;
+                }
+
+            } else { // two targets
+                log("Two points");
+                int target1 = activatedTargets.get(0), target2 = activatedTargets.get(1);
+                float time1 = PathLengthHelper.getTime(currPoint, target1), time2 = PathLengthHelper.getTime(currPoint, target2);
+                float toGoal1 = time1 + PathLengthHelper.getTime(target1, 8), toGoal2 = time2 + PathLengthHelper.getTime(target2, 8);
+                long remaining = api.getTimeRemaining().get(1), roundTime = api.getTimeRemaining().get(0);
+
+                // if both targets can be deactivated within the total time, try to deactivate both targets
+                // else try to deactivate one target or break
+                if(toGoal1 < remaining && toGoal2 < remaining) {
+                    // try to go to two points
+                    boolean isPoint1 = true;
+                    float bestTimeRound;
+                    float bestTimeTotal;
+
+                    if(time1 + PathLengthHelper.getTime(target1, target2) + PathLengthHelper.getTime(target2, 8) >
+                        time2 + PathLengthHelper.getTime(target2, target1) + PathLengthHelper.getTime(target1, 8)
+                    ) {
+                        isPoint1 = false;
+                        bestTimeRound = time2 + PathLengthHelper.getTime(target2, target1);
+                        bestTimeTotal = bestTimeRound + PathLengthHelper.getTime(target1, 8);
+                    } else {
+                        isPoint1 = true;
+                        bestTimeRound = time1 + PathLengthHelper.getTime(target1, target2);
+                        bestTimeTotal = bestTimeRound + PathLengthHelper.getTime(target2, 8);
+                    }
+
+                    // both two targets can be deactivated
+                    if(bestTimeTotal < remaining) {
+                        // if still a lot time (180 sec, for deactivate 3 target and p1 -> goal), ignore the time to goal,
+                        // else it's close to end, following the minimum time to goal
+                        if(remaining > 180000) {
+                            if(time1 + PathLengthHelper.getTime(target1, target2) > time2 + PathLengthHelper.getTime(target2, target1)) {
+                                isPoint1 = false;
+                                bestTimeRound = time2 + PathLengthHelper.getTime(target2, target1);
+                            } else {
+                                isPoint1 = true;
+                                bestTimeRound = time1 + PathLengthHelper.getTime(target1, target2);
+                            }
+                        }
+
+                        // both round time and total time are enough
+                        if(bestTimeRound < roundTime) {
+                            log("Choose both two points");
+                            if(isPoint1) {
+                                move(currPoint, target1);
+                                move(currPoint, target2);
+                            } else {
+                                move(currPoint, target2);
+                                move(currPoint, target1);
+                            }
+                        } else {
+
+                            // only one target can be deactivated within the round time (or zero, then do nothing)
+                            if(time1 > time2 && time2 < roundTime) {
+                                log("Two points, but choose one: " + target2);
+                                move(currPoint, target2);
+                            } else if(time1 < time2 && time1 < roundTime) {
+                                log("Two points, but choose one: " + target1);
+                                move(currPoint, target1);
+                            }
+                        }
+
+                    } else if(toGoal1 < remaining) {
+                        if(time1 < roundTime) {
+                            log("Two points, but don't have enough time, only choose one: " + target1);
+                            move(currPoint, target1);
+                        }
+                    } else if(toGoal2 < remaining) {
+                        if(time2 < roundTime) {
+                            log("Two points, but don't have enough time, only choose one: " + target2);
+                            move(currPoint, target2);
+                        }
+                    }
+                }
+            }
+        }
+
+        log("Start go to goal when remaining: " + api.getTimeRemaining().get(1));
         api.notifyGoingToGoal();
         move(currPoint, 8);
+        processString();
         api.reportMissionCompletion(message);
-
-
-//        Integer temp =0;
-//
-//        while(true){
-//
-//            List< Integer> list = api.getActiveTargets();
-//
-//            for (int i=0; i< list.size(); i++){
-//                move(temp, list.get(i));
-//                api.laserControl(true);
-//                api.takeTargetSnapshot(list.get(i));
-//                temp=list.get(i);
-//            }
-//
-//
-//
-//            if (api.getTimeRemaining().get(1) < 60000){
-//                break;
-//            }
-//
-//        }
-//        api.notifyGoingToGoal();
-//        move(temp, 8);
-//        api.reportMissionCompletion(" ");
     }
-
-
 }
 
