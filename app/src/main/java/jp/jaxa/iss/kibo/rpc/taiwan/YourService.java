@@ -1,4 +1,4 @@
-package jp.jaxa.iss.kibo.rpc.defaultapk;
+package jp.jaxa.iss.kibo.rpc.taiwan;
 
 import android.graphics.Bitmap;
 import android.util.Log;

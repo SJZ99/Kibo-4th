@@ -5,8 +5,7 @@ android {
     buildToolsVersion "26.0.2"
 
     defaultConfig {
-        applicationId "jp.jaxa.iss.kibo.rpc.defaultapk" +
-                ""
+        applicationId "jp.jaxa.iss.kibo.rpc.taiwan"
         minSdkVersion 24
         targetSdkVersion 26
         versionCode 1

@@ -1,4 +1,4 @@
-package jp.jaxa.iss.kibo.rpc.defaultapk;
+package jp.jaxa.iss.kibo.rpc.taiwan;
 
 public class PathLengthHelper {
     static final int SIZE = 9;
