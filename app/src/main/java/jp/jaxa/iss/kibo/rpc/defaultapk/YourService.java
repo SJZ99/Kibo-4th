@@ -4,6 +4,7 @@ import android.graphics.Bitmap;
 import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import gov.nasa.arc.astrobee.Result;
 import gov.nasa.arc.astrobee.types.Point;
@@ -66,18 +67,22 @@ public class YourService extends KiboRpcService {
     /*************** move end ***************/
 
     private void qrCodeMission() {
-        move(0, 7);
+//        long qrTime = api.getTimeRemaining().get(1);
+        move(currPoint, 7);
+//        qrTime -= api.getTimeRemaining().get(1);
+//        Log.i("TTime", "" + qrTime);
+
+
         Bitmap bitmap = api.getBitmapNavCam();
         message = QrCodeHelper.scan(bitmap);
-        log("Qrcode 1 finished");
+//        log("Qrcode 1 finished");
         // if failed, try again with consuming more time
         if(message.equals("")) {
             moveTo(WayPointsHelper.getPoint(7), WayPointsHelper.getTargetRotation(7));
             message = QrCodeHelper.deepScan(bitmap);
-            log("Qrcode 2 finished");
+//            log("Qrcode 2 finished");
         }
-
-        log("Qrcode finished with result: " + message);
+//        log("Qrcode finished with result: " + message);
     }
 
     private void processString() {
@@ -87,7 +92,7 @@ public class YourService extends KiboRpcService {
             message ="GO_TO_COLUMBUS";
         } else if(message.equals("RACK1")) {
             message = "CHECK_RACK_1";
-        } else if(message.equals("ARTROBEE")) {
+        } else if(message.equals("ASTROBEE")) {
             message = "I_AM_HERE";
         } else if(message.equals("INTBALL")) {
             message = "LOOKING_FORWARD_TO_SEE_YOU";
@@ -104,58 +109,36 @@ public class YourService extends KiboRpcService {
     protected void runPlan1(){
         api.startMission();
 
-        long qrTime = api.getTimeRemaining().get(1);
-//        qrCodeMission();
-//        qrTime -= api.getTimeRemaining().get(1);
-//        Log.i("TTime", "" + qrTime);
-
-        int to = 6;
-//        long time = api.getTimeRemaining().get(1);
-        move(currPoint, to);
-//        time -= api.getTimeRemaining().get(1);
-//        Log.i("TTime", "" + time);
-
-        api.laserControl(true);
-        api.takeTargetSnapshot(to);
-//
-//        move(currPoint, 4);
-//        api.laserControl(true);
-//        api.takeTargetSnapshot(to);
-//
-//        move(currPoint, 3);
-//        api.laserControl(true);
-//        api.takeTargetSnapshot(to);
-
-/*
-        log("before");
-        while(api.getTimeRemaining().get(1) > 25000 + PathLengthHelper.getTime(currPoint, 8)) {
-            log("while loop");
+        while(api.getTimeRemaining().get(1) > 19000 + PathLengthHelper.getTime(currPoint, 8)) {
+//            log("while loop");
             List<Integer> activatedTargets = api.getActiveTargets();
 
-            log("list size: " + activatedTargets.size());
+//            log("list size: " + activatedTargets.size());
 
             // single activated target
             if(activatedTargets.size() == 1) {
                 int targetPoint = activatedTargets.get(0);
-                log("Single point: " + targetPoint);
+//                log("Single point: " + targetPoint);
                 float time = PathLengthHelper.getTime(currPoint, targetPoint);
                 float toGoal = time + PathLengthHelper.getTime(targetPoint, 8);
                 float totalRemaining = api.getTimeRemaining().get(1), roundRemaining = api.getTimeRemaining().get(0);
 
-                log("time, remaining: " + time + ", " + roundRemaining);
-                log("toGoal, remaining: " + toGoal + ", " + totalRemaining);
+//                log("time, remaining: " + time + ", " + roundRemaining);
+//                log("toGoal, remaining: " + toGoal + ", " + totalRemaining);
 
                 if (time < roundRemaining && toGoal < totalRemaining) {
-                    log("time check ok, go to: " + targetPoint);
+//                    log("time check ok, go to: " + targetPoint);
                     move(currPoint, targetPoint);
-                } else if(time > roundRemaining) {
-                    // stand
+                } else if(time > roundRemaining && roundRemaining > totalRemaining) {
+                    break;
                 } else if(toGoal > totalRemaining) {
                     break;
+                } else {
+                    // stand
                 }
 
             } else { // two targets
-                log("Two points");
+//                log("Two points");
                 int target1 = activatedTargets.get(0), target2 = activatedTargets.get(1);
                 float time1 = PathLengthHelper.getTime(currPoint, target1), time2 = PathLengthHelper.getTime(currPoint, target2);
                 float toGoal1 = time1 + PathLengthHelper.getTime(target1, 8), toGoal2 = time2 + PathLengthHelper.getTime(target2, 8);
@@ -197,7 +180,7 @@ public class YourService extends KiboRpcService {
 
                         // both round time and total time are enough
                         if(bestTimeRound < roundTime) {
-                            log("Choose both two points");
+//                            log("Choose both two points");
                             if(isPoint1) {
                                 move(currPoint, target1);
                                 move(currPoint, target2);
@@ -209,39 +192,58 @@ public class YourService extends KiboRpcService {
 
                             // only one target can be deactivated within the round time (or zero, then do nothing)
                             if(time1 > time2 && time2 < roundTime) {
-                                log("Two points, but choose one: " + target2);
+//                                log("Two points, but choose one: " + target2);
                                 move(currPoint, target2);
                             } else if(time1 < time2 && time1 < roundTime) {
-                                log("Two points, but choose one: " + target1);
+//                                log("Two points, but choose one: " + target1);
                                 move(currPoint, target1);
                             }
                         }
 
                     } else if(toGoal1 < remaining) {
                         if(time1 < roundTime) {
-                            log("Two points, but don't have enough time, only choose one: " + target1);
+//                            log("Two points, but don't have enough time, only choose one: " + target1);
                             move(currPoint, target1);
                         }
                     } else if(toGoal2 < remaining) {
                         if(time2 < roundTime) {
-                            log("Two points, but don't have enough time, only choose one: " + target2);
+//                            log("Two points, but don't have enough time, only choose one: " + target2);
                             move(currPoint, target2);
                         }
+                    } else if(roundTime >= remaining) {
+                        break;
                     }
+                } else if(toGoal1 < remaining) {
+                    if(time1 < roundTime) {
+//                        log("Two points, but don't have enough time, only choose one: " + target1);
+                        move(currPoint, target1);
+                    }
+                } else if(toGoal2 < remaining) {
+                    if(time2 < roundTime) {
+//                        log("Two points, but don't have enough time, only choose one: " + target2);
+                        move(currPoint, target2);
+                    }
+                } else if(roundTime >= remaining) {
+                    break;
                 }
             }
         }
 
         if(PathLengthHelper.getTime(currPoint, 7) + PathLengthHelper.getTime(7, 8) < api.getTimeRemaining().get(1) + 5000) {
-            log("Qrcode mission");
-            log("remaining time: " + api.getTimeRemaining().get(1));
             qrCodeMission();
         }
-*/
-        log("Start go to goal when remaining: " + api.getTimeRemaining().get(1));
+
+
+//        log("Start go to goal when remaining: " + api.getTimeRemaining().get(1));
         api.notifyGoingToGoal();
-        move(currPoint, 8);
         processString();
+
+        if(api.getTimeRemaining().get(1) < PathLengthHelper.getTime(currPoint, 8)) {
+            api.reportMissionCompletion(message);
+            return;
+        }
+
+        move(currPoint, 8);
         api.reportMissionCompletion(message);
     }
 }

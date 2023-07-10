@@ -36,17 +36,18 @@ public class PathLengthHelper {
         time[0][5] = 34.8f;
         time[5][3] = 44.1f;
         time[5][6] = 39.5f;
-        time[5][8] = 25.2f;
+        time[5][8] = 24f;
 
+        time[0][6] = 28.5f;
         time[6][8] = 32.5f;
 
         time[7][1] = 28.8f;
         time[7][2] = 35.52f;
-        time[7][3] = 40.73f;
+        time[7][3] = 47.5f;
         time[7][4] = 50.9f;
         time[7][5] = 37.82f;
         time[7][6] = 18.18f;
-        time[7][8] = 42.2f;
+        time[7][8] = 40.9f;
     }
 
     public static float getTime(int from, int to) {
