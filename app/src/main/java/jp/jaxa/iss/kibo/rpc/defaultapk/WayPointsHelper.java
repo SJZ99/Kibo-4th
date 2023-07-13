@@ -136,6 +136,7 @@ public class WayPointsHelper {
 
         // 3 <-> 4
         wayPoint[3][4].add(points[3])
+        wayPoint[3][4].add(new Point(10.626533168828,-7.1936467429033,5.1804));    
         wayPoint[3][4].add(points[4]);
 
         // 3 <-> 5
