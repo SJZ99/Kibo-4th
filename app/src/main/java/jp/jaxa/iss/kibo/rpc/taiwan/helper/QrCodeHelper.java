@@ -1,4 +1,4 @@
-package jp.jaxa.iss.kibo.rpc.taiwan;
+package jp.jaxa.iss.kibo.rpc.taiwan.helper;
 
 import android.graphics.Bitmap;
 import android.graphics.Matrix;

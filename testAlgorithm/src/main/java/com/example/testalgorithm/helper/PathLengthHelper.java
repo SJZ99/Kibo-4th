@@ -1,4 +1,4 @@
-package jp.jaxa.iss.kibo.rpc.taiwan;
+package com.example.testalgorithm.helper;
 
 public class PathLengthHelper {
     static final int SIZE = 9;
