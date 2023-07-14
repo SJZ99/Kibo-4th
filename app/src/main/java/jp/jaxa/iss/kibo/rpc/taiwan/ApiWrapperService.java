@@ -36,46 +36,45 @@ public class ApiWrapperService extends KiboRpcService {
     protected static int bestRouteSize = 0;
 
     protected final void decideRoute(List<Integer> targets) {
-        long t = api.getTimeRemaining().get(1);
         resetRoute();
+
         wayPoints[0] = new WayPoint(currPoint, 0, 0, (short) 0);
+
         _decideRoute(1, targets);
-        t -= api.getTimeRemaining().get(1);
-        log("Decision Consume: " + t);
+
+        String res = "";
+        for(int i = 1; i < bestRouteSize; ++i) {
+            res += bestRoute[i].getId() + " ";
+        }
+        log("Decision: " + res);
+        log("need time: " + bestRoute[bestRouteSize - 1].getTime());
+        log("phrase: " + api.getTimeRemaining().get(0));
+        log("mission: " + api.getTimeRemaining().get(1));
     }
 
     private void _decideRoute(int index, List<Integer> targets) {
         // index must greater than 0
         if(index < 0) return;
-        log("index: " + index);
-//        log("previous id: " + wayPoints[index - 1].getId());
+
         // used all targets, or has used point 8 (goal)
         if(wayPoints[index - 1].numberOfVisitedPoints() - 1 == targets.size() || wayPoints[index - 1].getId() == 8) {
-//            log("target size: " + targets.size());
-//            log("visited points: " + Integer.toBinaryString(wayPoints[index - 1].getVisited()));
-            String path = "";
-            for(int i = 0; i <= index; ++i) {
-                if(wayPoints[i] != null) {
-                    path += wayPoints[i].getId() + " ";
-                }
-            }
-//            log("touch end: " + path);
 
             // no route has been saved
             if(bestRouteSize == 0 || bestRoute[0] == null) {
                 // copy to bestRoute
-                for(int i = 0; i <= index; ++i) {
-//                    if(wayPoints[i] != null) {
-//                        log("id: " + wayPoints[i].getId());
-//                    }
+                resetRoute();
+                for(int i = 0; i < index; ++i) {
                     bestRoute[i] = wayPoints[i];
                 }
                 bestRouteSize = index;
+
             } else { // compare to saved route
+
                 WayPoint best = bestRoute[bestRouteSize - 1], curr = wayPoints[index - 1];
                 if(best.compareTo(curr) < 0) {
                     // copy to bestRoute
-                    for(int i = 0; i <= index; ++i) {
+                    resetRoute();
+                    for(int i = 0; i < index; ++i) {
                         if(wayPoints[i] != null) {
                             log("id: " + wayPoints[i].getId());
                         }
@@ -87,14 +86,11 @@ public class ApiWrapperService extends KiboRpcService {
             return;
         }
 
-//        log("previous visited: " + Integer.toBinaryString(wayPoints[index - 1].getVisited()));
-
         // every targets can be put into route or not
         for(int i : targets) {
-//            log("targets: " + i);
+
             // if this path has visited this target, skip it
             if(wayPoints[index - 1].isVisited(i)) {
-//                log("have contained: id=" + i);
                 continue;
             }
 
@@ -111,7 +107,6 @@ public class ApiWrapperService extends KiboRpcService {
             // add way point to route
             wayPoints[index] = new WayPoint(i, pathTime, wayPoints[index - 1].getPoints(), wayPoints[index - 1].getVisited());
 
-//            log("after add(id): " + wayPoints[index].getId());
             // after put a way point at current index, try to put into next index
             _decideRoute(index + 1, targets);
 
