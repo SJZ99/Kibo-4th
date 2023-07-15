@@ -2,6 +2,11 @@ apply plugin: 'java-library'
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
+    compile project(':guest_science_library')
+    compile project(':kibo_rpc_api')
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile 'com.quickbirdstudios:opencv:3.4.4-contrib'
+    compile 'com.journeyapps:zxing-android-embedded:3.6.0'
 }
 
 sourceCompatibility = "1.7"

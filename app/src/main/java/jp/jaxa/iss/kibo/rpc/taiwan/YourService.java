@@ -1,14 +1,13 @@
 package jp.jaxa.iss.kibo.rpc.taiwan;
 
-import android.graphics.Bitmap;
-import android.graphics.Matrix;
-import android.graphics.Path;
+import org.opencv.core.Mat;
 
 import java.util.List;
 
+import gov.nasa.arc.astrobee.types.Point;
+import gov.nasa.arc.astrobee.types.Quaternion;
 import jp.jaxa.iss.kibo.rpc.taiwan.helper.PathLengthHelper;
 import jp.jaxa.iss.kibo.rpc.taiwan.helper.QrCodeHelper;
-import jp.jaxa.iss.kibo.rpc.taiwan.helper.WayPointsHelper;
 
 public class YourService extends ApiWrapperService {
 
@@ -18,17 +17,25 @@ public class YourService extends ApiWrapperService {
 
     private void qrCodeMission() {
 
-        Bitmap bitmap = api.getBitmapNavCam();
-        message = QrCodeHelper.scan(bitmap);
+//        api.flashlightControlFront(0.5f);
+        try {
+            Thread.sleep(4800l);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        Mat mat = api.getMatNavCam();
 
-        Matrix matrix = new Matrix();
-        matrix.preScale(-1.0f, -1.0f);
-        api.saveBitmapImage(Bitmap.createBitmap(bitmap, 361, 293, 548, 418, matrix, true), "qrcode.jpg");
+        long t = api.getTimeRemaining().get(1);
+        message = QrCodeHelper.scan(mat, api.getNavCamIntrinsics());
+        log("Process Time: " + (t - api.getTimeRemaining().get(1)));
+
+        api.saveBitmapImage(QrCodeHelper.processed, "qrcode.jpg");
 
         // if failed, try again with consuming more time
         if(message.equals("")) {
-            moveTo(WayPointsHelper.getPoint(7), WayPointsHelper.getTargetRotation(7));
-            message = QrCodeHelper.deepScan(bitmap);
+//            moveTo(WayPointsHelper.getPoint(7), WayPointsHelper.getTargetRotation(7));
+            mat = api.getMatNavCam();
+            message = QrCodeHelper.deepScan(mat, api.getNavCamIntrinsics());
         }
 
         log("Qr code: " + message);
@@ -107,47 +114,28 @@ public class YourService extends ApiWrapperService {
 
     @Override
     protected void runPlan1(){
+
         api.startMission();
 
-        // make decision
-        List<Integer> activatedTargets;
-        long missionTime = api.getTimeRemaining().get(1);
+        //new Point(10.66, -8.85, 4.48)
+        // p2 rotate: new Quaternion(0.787f, 0.447f, -0.21f, 0.37f)
+        move(currPoint, 2);
 
-        // if qr code haven't been scanned, reserve 122 sec for qr code and going to goal
-        // otherwise, keep deactivating until need to go to goal (18 sec for safety)
-        while(
-            PathLengthHelper.getTime(currPoint, 8) + 123000 <= missionTime
-            || (isQrCodeFinished() && PathLengthHelper.getTime(currPoint, 8) + 18000 <= missionTime)
-        ) {
-            activatedTargets = api.getActiveTargets();
-            missionTime = api.getTimeRemaining().get(1);
 
-            // find best route and go to deactivate
-            if(!deactivation(activatedTargets)) {
-                break;
-            }
+//        moveTo(new Point(11.369 , -8.55, 4.9), new Quaternion(0, 0.707f, 0, 0.707f));
+        moveTo(new Point(11.369 - 0.6, -8.55 - 0.6, 4.9), new Quaternion(0.032f, 0.675f, 0.029f, 0.737f));
 
-        }
 
-        log("end of while loop");
+//        move(currPoint, 1);
+//        moveTo(WayPointsHelper.getPoint(1), new Quaternion(0.706f, 0.581f, -0.258f, 0.313f));
 
-        if(!isQrCodeFinished()) {
-            activatedTargets = api.getActiveTargets();
+//        move(0, 3);
+//        move(3, 2);
+        qrCodeMission();
 
-            // put qr code and goal into possible choice (qr code and goal must be selected)
-            activatedTargets.add(7);
-            activatedTargets.add(8);
-
-            deactivation(activatedTargets);
-
-            if(currPoint != 8) {
-                goingToGoalMission();
-            }
-            log("end of not found qrcode end game");
-        } else {
-            goingToGoalMission();
-            log("end of normal end game");
-        }
+        api.notifyGoingToGoal();
+        processString();
+        api.reportMissionCompletion(message);
     }
 }
 
