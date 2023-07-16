@@ -50,12 +50,7 @@ public class YourService extends ApiWrapperService {
         Imgproc.adaptiveThreshold(gray, gray, 255, Imgproc.ADAPTIVE_THRESH_MEAN_C, Imgproc.THRESH_BINARY, 9, 3);
         api.saveMatImage(gray, "threshold.jpg");
 
-        // Detect QR codes
-        QRCodeDetector detector = new QRCodeDetector();
-        detector.setEpsX(0.4);
-        detector.setEpsY(0.2);
-
-        message = detector.detectAndDecode(gray);
+        
 
         log("Process Time: " + (t - api.getTimeRemaining().get(1)));
 
