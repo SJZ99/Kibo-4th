@@ -16,16 +16,19 @@ import org.opencv.android.Utils;
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
+import org.opencv.core.MatOfPoint2f;
 import org.opencv.core.Point;
 import org.opencv.core.Rect;
+import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
+import org.opencv.objdetect.QRCodeDetector;
 
 public class QrCodeHelper {
-    public static Bitmap processed;
+    public static Mat processed;
 
     public static Mat undistortImg(Mat src, double[][] navIntrinsics) {
-        Mat cam_Matrix = new Mat(3, 3, CvType.CV_8UC1);
-        Mat distCoeff = new Mat(1, 5, CvType.CV_8UC1);
+        Mat cam_Matrix = new Mat(3, 3, CvType.CV_32FC1);
+        Mat distCoeff = new Mat(1, 5, CvType.CV_32FC1);
         Mat output = new Mat(src.size(), src.type());
 
         // cam_matrix & dat coefficient arr to mat
@@ -54,6 +57,7 @@ public class QrCodeHelper {
 
 
         newMat2 = undistortImg(mat, navIntrinsics);
+
         Imgproc.threshold(newMat2, newMat1, 150, 255, Imgproc.THRESH_BINARY);
 
         // flip
@@ -73,22 +77,20 @@ public class QrCodeHelper {
 
     private static String scanCore(Mat mat, Map<DecodeHintType, Object> hint, double[][] navIntrinsics) {
         try {
-            Bitmap bitmap = preprocess(mat, navIntrinsics);
-            processed = bitmap;
-            int width = bitmap.getWidth();
-            int height = bitmap.getHeight();
-            int[] pixel = new int[width * height];
-            bitmap.getPixels(pixel,0, width, 0, 0, width, height);
+            Rect rect = new Rect(0, 0, 1280, 960);
+            Mat newMat1 = new Mat(mat, rect);
+            Mat newMat2 = new Mat(newMat1.size(), newMat1.type());
 
-            RGBLuminanceSource rgbLuminanceSource = new RGBLuminanceSource(width, height, pixel);
-            BinaryBitmap binaryBitmap = new BinaryBitmap(new HybridBinarizer(rgbLuminanceSource));
+            newMat2 = undistortImg(mat, navIntrinsics);
+            Imgproc.threshold(newMat2, newMat1, 150, 255, Imgproc.THRESH_BINARY);
 
-            com.google.zxing.Result ans = new QRCodeReader().decode(binaryBitmap, hint);
+            // Detect QR codes
+            QRCodeDetector detector = new QRCodeDetector();
+            String ans = "";
 
-            if(ans == null || ans.getText() == null) {
-                return "";
-            }
-            return ans.getText();
+            ans = detector.detectAndDecode(newMat1);
+
+            return ans == null ? "" : ans;
         } catch (Exception e) {
             return "";
         }

@@ -1,6 +1,10 @@
 package jp.jaxa.iss.kibo.rpc.taiwan;
 
+import org.opencv.core.CvType;
 import org.opencv.core.Mat;
+import org.opencv.core.Rect;
+import org.opencv.imgproc.Imgproc;
+import org.opencv.objdetect.QRCodeDetector;
 
 import java.util.List;
 
@@ -26,17 +30,41 @@ public class YourService extends ApiWrapperService {
         Mat mat = api.getMatNavCam();
 
         long t = api.getTimeRemaining().get(1);
-        message = QrCodeHelper.scan(mat, api.getNavCamIntrinsics());
+//        message = QrCodeHelper.scan(mat, api.getNavCamIntrinsics());
+
+        Rect rect = new Rect(0, 0, 1280, 960);
+        Mat newMat1 = new Mat(mat, rect);
+        Mat newMat2 = new Mat(newMat1.size(), newMat1.type());
+
+        api.saveMatImage(mat, "raw.jpg");
+        newMat2 = QrCodeHelper.undistortImg(mat, api.getNavCamIntrinsics());
+        api.saveMatImage(newMat2, "undistort.jpg");
+
+        // adaptive threshold
+        Mat gray = new Mat(newMat2, new Rect(640, 480, 640, 480));
+
+        if (gray.type() != CvType.CV_8UC1) {
+            gray.convertTo(gray, CvType.CV_8UC1);
+        }
+
+        Imgproc.adaptiveThreshold(gray, gray, 255, Imgproc.ADAPTIVE_THRESH_MEAN_C, Imgproc.THRESH_BINARY, 9, 3);
+        api.saveMatImage(gray, "threshold.jpg");
+
+        // Detect QR codes
+        QRCodeDetector detector = new QRCodeDetector();
+        detector.setEpsX(0.4);
+        detector.setEpsY(0.2);
+
+        message = detector.detectAndDecode(gray);
+
         log("Process Time: " + (t - api.getTimeRemaining().get(1)));
 
-        api.saveBitmapImage(QrCodeHelper.processed, "qrcode.jpg");
-
         // if failed, try again with consuming more time
-        if(message.equals("")) {
+//        if(message.equals("")) {
 //            moveTo(WayPointsHelper.getPoint(7), WayPointsHelper.getTargetRotation(7));
-            mat = api.getMatNavCam();
-            message = QrCodeHelper.deepScan(mat, api.getNavCamIntrinsics());
-        }
+//            mat = api.getMatNavCam();
+//            message = QrCodeHelper.deepScan(mat, api.getNavCamIntrinsics());
+//        }
 
         log("Qr code: " + message);
     }
@@ -123,7 +151,7 @@ public class YourService extends ApiWrapperService {
 
 
 //        moveTo(new Point(11.369 , -8.55, 4.9), new Quaternion(0, 0.707f, 0, 0.707f));
-        moveTo(new Point(11.369 - 0.6, -8.55 - 0.6, 4.9), new Quaternion(0.032f, 0.675f, 0.029f, 0.737f));
+        moveTo(new Point(11.369 - 0.6, -8.55 - 0.75, 4.9), new Quaternion(0, 0.707f, 0, 0.707f));
 
 
 //        move(currPoint, 1);
