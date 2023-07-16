@@ -1,12 +1,24 @@
 package jp.jaxa.iss.kibo.rpc.taiwan;
 
+import android.graphics.Bitmap;
+
+import com.google.zxing.BinaryBitmap;
+import com.google.zxing.DecodeHintType;
+import com.google.zxing.NotFoundException;
+import com.google.zxing.RGBLuminanceSource;
+import com.google.zxing.common.HybridBinarizer;
+import com.google.zxing.qrcode.QRCodeReader;
+
+import org.opencv.android.Utils;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.Rect;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.objdetect.QRCodeDetector;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import gov.nasa.arc.astrobee.types.Point;
 import gov.nasa.arc.astrobee.types.Quaternion;
@@ -32,34 +44,29 @@ public class YourService extends ApiWrapperService {
         long t = api.getTimeRemaining().get(1);
 //        message = QrCodeHelper.scan(mat, api.getNavCamIntrinsics());
 
-        Rect rect = new Rect(0, 0, 1280, 960);
-        Mat newMat1 = new Mat(mat, rect);
-        Mat newMat2 = new Mat(newMat1.size(), newMat1.type());
+        Mat newMat1;
 
         api.saveMatImage(mat, "raw.jpg");
-        newMat2 = QrCodeHelper.undistortImg(mat, api.getNavCamIntrinsics());
-        api.saveMatImage(newMat2, "undistort.jpg");
+        newMat1 = QrCodeHelper.undistortImg(mat, api.getNavCamIntrinsics());
+        api.saveMatImage(newMat1, "undistort.jpg");
+
+        // scan 1
+        message = QrCodeHelper.deepScan(newMat1);
+        log("only undistort: " + message);
 
         // adaptive threshold
-        Mat gray = new Mat(newMat2, new Rect(640, 480, 640, 480));
-
+        Mat gray = new Mat(newMat1, new Rect(640, 480, 640, 480));
         if (gray.type() != CvType.CV_8UC1) {
             gray.convertTo(gray, CvType.CV_8UC1);
         }
-
         Imgproc.adaptiveThreshold(gray, gray, 255, Imgproc.ADAPTIVE_THRESH_MEAN_C, Imgproc.THRESH_BINARY, 9, 3);
         api.saveMatImage(gray, "threshold.jpg");
 
-        
 
+        // scan 2
+        message = QrCodeHelper.deepScan(gray);
+        log("add threshold: " + message);
         log("Process Time: " + (t - api.getTimeRemaining().get(1)));
-
-        // if failed, try again with consuming more time
-//        if(message.equals("")) {
-//            moveTo(WayPointsHelper.getPoint(7), WayPointsHelper.getTargetRotation(7));
-//            mat = api.getMatNavCam();
-//            message = QrCodeHelper.deepScan(mat, api.getNavCamIntrinsics());
-//        }
 
         log("Qr code: " + message);
     }
@@ -145,15 +152,9 @@ public class YourService extends ApiWrapperService {
         move(currPoint, 2);
 
 
-//        moveTo(new Point(11.369 , -8.55, 4.9), new Quaternion(0, 0.707f, 0, 0.707f));
-        moveTo(new Point(11.369 - 0.6, -8.55 - 0.75, 4.9), new Quaternion(0, 0.707f, 0, 0.707f));
+//        moveTo(new Point(11.369 - 0.5, -8.55 - 0.85, 4.9), new Quaternion(0.019f, 0.701f, 0.018f, 0.713f)); best
 
 
-//        move(currPoint, 1);
-//        moveTo(WayPointsHelper.getPoint(1), new Quaternion(0.706f, 0.581f, -0.258f, 0.313f));
-
-//        move(0, 3);
-//        move(3, 2);
         qrCodeMission();
 
         api.notifyGoingToGoal();

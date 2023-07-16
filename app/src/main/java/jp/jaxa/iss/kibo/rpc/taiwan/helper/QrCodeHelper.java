@@ -21,7 +21,6 @@ import org.opencv.core.Point;
 import org.opencv.core.Rect;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
-import org.opencv.objdetect.QRCodeDetector;
 
 public class QrCodeHelper {
     public static Mat processed;
@@ -60,10 +59,6 @@ public class QrCodeHelper {
 
         Imgproc.threshold(newMat2, newMat1, 150, 255, Imgproc.THRESH_BINARY);
 
-        // flip
-//        Point center = new Point(newMat2.cols() / 2, newMat2.rows() / 2);
-//        Imgproc.warpAffine(newMat2, newMat1, Imgproc.getRotationMatrix2D(center, 88, 1), newMat1.size());
-
         // convert to bitmap
         Bitmap bitmap = Bitmap.createBitmap(newMat2.cols(), newMat2.rows(), Bitmap.Config.ARGB_8888);
         Utils.matToBitmap(newMat1, bitmap);
@@ -75,39 +70,35 @@ public class QrCodeHelper {
         return bitmap;
     }
 
-    private static String scanCore(Mat mat, Map<DecodeHintType, Object> hint, double[][] navIntrinsics) {
+    private static String scanCore(Bitmap bitmap, Map<DecodeHintType, Object> hint) {
         try {
-            Rect rect = new Rect(0, 0, 1280, 960);
-            Mat newMat1 = new Mat(mat, rect);
-            Mat newMat2 = new Mat(newMat1.size(), newMat1.type());
+            int width = bitmap.getWidth();
+            int height = bitmap.getHeight();
+            int[] pixel = new int[width * height];
+            bitmap.getPixels(pixel,0, width, 0, 0, width, height);
 
-            newMat2 = undistortImg(mat, navIntrinsics);
-            Imgproc.threshold(newMat2, newMat1, 150, 255, Imgproc.THRESH_BINARY);
+            RGBLuminanceSource rgbLuminanceSource = new RGBLuminanceSource(width, height, pixel);
+            BinaryBitmap binaryBitmap = new BinaryBitmap(new HybridBinarizer(rgbLuminanceSource));
 
-            // Detect QR codes
-            QRCodeDetector detector = new QRCodeDetector();
-            String ans = "";
-
-            ans = detector.detectAndDecode(newMat1);
-
-            return ans == null ? "" : ans;
+            com.google.zxing.Result ans = new QRCodeReader().decode(binaryBitmap, hint);
+            return ans == null ? "" : ans.getText();
         } catch (Exception e) {
             return "";
         }
     }
 
-    public static String scan(Mat mat, double[][] navIntrinsics) {
-        Map<DecodeHintType, Object> hint = new HashMap<>();
-        hint.put(DecodeHintType.CHARACTER_SET, "UTF-8");
-
-        return scanCore(mat, hint, navIntrinsics);
-    }
-
-    public static String deepScan(Mat mat, double[][] navIntrinsics) {
+    public static String deepScan(Bitmap bitmap) {
         Map<DecodeHintType, Object> hint = new HashMap<>();
         hint.put(DecodeHintType.CHARACTER_SET, "UTF-8");
         hint.put(DecodeHintType.TRY_HARDER, Boolean.TRUE);
 
-        return scanCore(mat, hint, navIntrinsics);
+        return scanCore(bitmap, hint);
+    }
+
+    public static String deepScan(Mat mat) {
+        Bitmap bitmap = Bitmap.createBitmap(mat.cols(), mat.rows(), Bitmap.Config.ARGB_8888);
+        Utils.matToBitmap(mat, bitmap);
+
+        return deepScan(bitmap);
     }
 }
