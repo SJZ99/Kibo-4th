@@ -139,15 +139,47 @@ public class YourService extends ApiWrapperService {
 
         api.startMission();
 
+        api.startMission();
 
-        move(currPoint, 2);
-        moveTo(new Point(11.369 - 0.5, -8.55 - 0.85, 4.9), new Quaternion(0.0f, 0.707f, 0.0f, 0.707f));
+        // make decision
+        List<Integer> activatedTargets;
+        long missionTime = api.getTimeRemaining().get(1);
 
-        qrCodeMission();
+        // if qr code haven't been scanned, reserve 122 sec for qr code and going to goal
+        // otherwise, keep deactivating until need to go to goal (18 sec for safety)
+        while(
+                PathLengthHelper.getTime(currPoint, 8) + 123000 <= missionTime
+                        || (isQrCodeFinished() && PathLengthHelper.getTime(currPoint, 8) + 18000 <= missionTime)
+                ) {
+            activatedTargets = api.getActiveTargets();
+            missionTime = api.getTimeRemaining().get(1);
 
-        api.notifyGoingToGoal();
-        processString();
-        api.reportMissionCompletion(message);
+            // find best route and go to deactivate
+            if(!deactivation(activatedTargets)) {
+                break;
+            }
+
+        }
+
+        log("end of while loop");
+
+        if(!isQrCodeFinished()) {
+            activatedTargets = api.getActiveTargets();
+
+            // put qr code and goal into possible choice (qr code and goal must be selected)
+            activatedTargets.add(7);
+            activatedTargets.add(8);
+
+            deactivation(activatedTargets);
+
+            if(currPoint != 8) {
+                goingToGoalMission();
+            }
+            log("end of not found qrcode end game");
+        } else {
+            goingToGoalMission();
+            log("end of normal end game");
+        }
     }
 }
 

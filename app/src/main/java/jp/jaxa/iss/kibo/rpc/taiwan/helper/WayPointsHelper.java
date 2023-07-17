@@ -22,7 +22,7 @@ public class WayPointsHelper {
         points[4] = new Point(10.51, -6.718 + 0.1, 5.1804 + 0.03);
         points[5] = new Point(11.114 - 0.07, -7.97 + 0.05, 5.33);
         points[6] = new Point(11.355, -8.993 - 0.053, 4.78 + 0.16);
-        points[7] = new Point(11.369, -8.55, 4.48);
+        points[7] = new Point(11.369 - 0.5, -8.55 - 0.85, 4.9);
         points[8] = new Point(11.143, -6.71, 4.96);
 
         wayPointInit();
@@ -45,7 +45,7 @@ public class WayPointsHelper {
         targetRotation.put(4, new Quaternion(0, 0, -1, 0));
         targetRotation.put(5, new Quaternion(-0.5f, -0.5f, -0.5f, 0.5f));
         targetRotation.put(6, new Quaternion(0, 0, 0, 1));
-        targetRotation.put(7, new Quaternion(0, 0.707f, 0, 0.707f));
+        targetRotation.put(7, new Quaternion(0.0f, 0.707f, 0.0f, 0.707f));
         targetRotation.put(8, new Quaternion(0, 0, -0.707f, 0.707f));
     }
 
