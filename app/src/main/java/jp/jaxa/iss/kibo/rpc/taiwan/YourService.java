@@ -24,6 +24,7 @@ import gov.nasa.arc.astrobee.types.Point;
 import gov.nasa.arc.astrobee.types.Quaternion;
 import jp.jaxa.iss.kibo.rpc.taiwan.helper.PathLengthHelper;
 import jp.jaxa.iss.kibo.rpc.taiwan.helper.QrCodeHelper;
+import jp.jaxa.iss.kibo.rpc.taiwan.helper.WayPointsHelper;
 
 public class YourService extends ApiWrapperService {
 
@@ -39,35 +40,26 @@ public class YourService extends ApiWrapperService {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+
         Mat mat = api.getMatNavCam();
 
         long t = api.getTimeRemaining().get(1);
-//        message = QrCodeHelper.scan(mat, api.getNavCamIntrinsics());
 
         Mat newMat1;
-
         api.saveMatImage(mat, "raw.jpg");
         newMat1 = QrCodeHelper.undistortImg(mat, api.getNavCamIntrinsics());
         api.saveMatImage(newMat1, "undistort.jpg");
 
         // scan 1
         message = QrCodeHelper.deepScan(newMat1);
-        log("only undistort: " + message);
 
-        // adaptive threshold
-        Mat gray = new Mat(newMat1, new Rect(640, 480, 640, 480));
-        if (gray.type() != CvType.CV_8UC1) {
-            gray.convertTo(gray, CvType.CV_8UC1);
+        if(message.equals("")) {
+            newMat1 = QrCodeHelper.preprocess(newMat1);
+            message = QrCodeHelper.deepScan(newMat1);
+            api.saveMatImage(newMat1, "scan2_threshold.jpg");
         }
-        Imgproc.adaptiveThreshold(gray, gray, 255, Imgproc.ADAPTIVE_THRESH_MEAN_C, Imgproc.THRESH_BINARY, 9, 3);
-        api.saveMatImage(gray, "threshold.jpg");
 
-
-        // scan 2
-        message = QrCodeHelper.deepScan(gray);
-        log("add threshold: " + message);
         log("Process Time: " + (t - api.getTimeRemaining().get(1)));
-
         log("Qr code: " + message);
     }
 
@@ -147,13 +139,9 @@ public class YourService extends ApiWrapperService {
 
         api.startMission();
 
-        //new Point(10.66, -8.85, 4.48)
-        // p2 rotate: new Quaternion(0.787f, 0.447f, -0.21f, 0.37f)
+
         move(currPoint, 2);
-
-
-//        moveTo(new Point(11.369 - 0.5, -8.55 - 0.85, 4.9), new Quaternion(0.019f, 0.701f, 0.018f, 0.713f)); best
-
+        moveTo(new Point(11.369 - 0.5, -8.55 - 0.85, 4.9), new Quaternion(0.0f, 0.707f, 0.0f, 0.707f));
 
         qrCodeMission();
 

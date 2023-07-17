@@ -48,26 +48,17 @@ public class QrCodeHelper {
         return output;
     }
 
-    private static Bitmap preprocess(Mat mat, double[][] navIntrinsics) {
-        // crop
-        Rect rect = new Rect(0, 0, 1280, 960);
-        Mat newMat1 = new Mat(mat, rect);
-        Mat newMat2 = new Mat(newMat1.size(), newMat1.type());
+    public static Mat preprocess(Mat raw) {
+        // sharpness
+        Mat minus = new Mat();
+        Imgproc.GaussianBlur(raw, minus, new Size(5, 5), 0);
+        Core.addWeighted(raw, 2.1, minus, -1.1, 0, raw);
 
+        // threshold
+        Imgproc.threshold(raw, raw, 100, 255, Imgproc.THRESH_BINARY);
 
-        newMat2 = undistortImg(mat, navIntrinsics);
-
-        Imgproc.threshold(newMat2, newMat1, 150, 255, Imgproc.THRESH_BINARY);
-
-        // convert to bitmap
-        Bitmap bitmap = Bitmap.createBitmap(newMat2.cols(), newMat2.rows(), Bitmap.Config.ARGB_8888);
-        Utils.matToBitmap(newMat1, bitmap);
-
-        mat.release();
-        newMat1.release();
-        newMat2.release();
-
-        return bitmap;
+        minus.release();
+        return raw;
     }
 
     private static String scanCore(Bitmap bitmap, Map<DecodeHintType, Object> hint) {
