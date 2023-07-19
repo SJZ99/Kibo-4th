@@ -1,45 +1,29 @@
 package jp.jaxa.iss.kibo.rpc.taiwan;
 
-import android.graphics.Bitmap;
-
-import com.google.zxing.BinaryBitmap;
-import com.google.zxing.DecodeHintType;
-import com.google.zxing.NotFoundException;
-import com.google.zxing.RGBLuminanceSource;
-import com.google.zxing.common.HybridBinarizer;
-import com.google.zxing.qrcode.QRCodeReader;
-
-import org.opencv.android.Utils;
-import org.opencv.core.CvType;
 import org.opencv.core.Mat;
-import org.opencv.core.Rect;
-import org.opencv.imgproc.Imgproc;
-import org.opencv.objdetect.QRCodeDetector;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import gov.nasa.arc.astrobee.types.Point;
 import gov.nasa.arc.astrobee.types.Quaternion;
 import jp.jaxa.iss.kibo.rpc.taiwan.helper.PathLengthHelper;
 import jp.jaxa.iss.kibo.rpc.taiwan.helper.QrCodeHelper;
-import jp.jaxa.iss.kibo.rpc.taiwan.helper.WayPointsHelper;
+
 
 public class YourService extends ApiWrapperService {
 
-    private boolean isQrCodeFinished() {
+    public static boolean isQrCodeFinished() {
         return !message.equals("");
     }
 
     private void qrCodeMission() {
 
 //        api.flashlightControlFront(0.5f);
-        try {
-            Thread.sleep(4800l);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+//        try {
+//            Thread.sleep(1000l);
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
 
         Mat mat = api.getMatNavCam();
 
@@ -47,7 +31,8 @@ public class YourService extends ApiWrapperService {
 
         Mat newMat1;
         api.saveMatImage(mat, "raw.jpg");
-        newMat1 = QrCodeHelper.undistortImg(mat, api.getNavCamIntrinsics());
+        boolean undistortMode = api.getRobotKinematics().getPosition().getZ() <= 4.77;
+        newMat1 = QrCodeHelper.undistortImg(mat, api.getNavCamIntrinsics(), undistortMode);
         api.saveMatImage(newMat1, "undistort.jpg");
 
         // scan 1
@@ -105,8 +90,8 @@ public class YourService extends ApiWrapperService {
                 // normal movement
                 move(currPoint, bestRoute[i].getId());
 
-                // at point 7, scan qr code
-                if(bestRoute[i].getId() == 7) {
+                // at point 7 or point 2, scan qr code
+                if(bestRoute[i].getId() == 7 || (bestRoute[i].getId() == 2 && !isQrCodeFinished())) {
                     qrCodeMission();
                 }
             }
@@ -138,48 +123,57 @@ public class YourService extends ApiWrapperService {
     protected void runPlan1(){
 
         api.startMission();
+        long t = api.getTimeRemaining().get(1);
+        move(0, 3);
+//        log("TTime (0, 7): " + (t - api.getTimeRemaining().get(1)));
+//        t = api.getTimeRemaining().get(1);
+        move(3, 7);
+//        log("TTime(7, 8): " + (t - api.getTimeRemaining().get(1)));
+        qrCodeMission();
 
-        api.startMission();
+        api.notifyGoingToGoal();
+        processString();
+        api.reportMissionCompletion(message);
 
         // make decision
-        List<Integer> activatedTargets;
-        long missionTime = api.getTimeRemaining().get(1);
-
-        // if qr code haven't been scanned, reserve 122 sec for qr code and going to goal
-        // otherwise, keep deactivating until need to go to goal (18 sec for safety)
-        while(
-                PathLengthHelper.getTime(currPoint, 8) + 123000 <= missionTime
-                        || (isQrCodeFinished() && PathLengthHelper.getTime(currPoint, 8) + 18000 <= missionTime)
-                ) {
-            activatedTargets = api.getActiveTargets();
-            missionTime = api.getTimeRemaining().get(1);
-
-            // find best route and go to deactivate
-            if(!deactivation(activatedTargets)) {
-                break;
-            }
-
-        }
-
-        log("end of while loop");
-
-        if(!isQrCodeFinished()) {
-            activatedTargets = api.getActiveTargets();
-
-            // put qr code and goal into possible choice (qr code and goal must be selected)
-            activatedTargets.add(7);
-            activatedTargets.add(8);
-
-            deactivation(activatedTargets);
-
-            if(currPoint != 8) {
-                goingToGoalMission();
-            }
-            log("end of not found qrcode end game");
-        } else {
-            goingToGoalMission();
-            log("end of normal end game");
-        }
+//        List<Integer> activatedTargets;
+//        long missionTime = api.getTimeRemaining().get(1);
+//
+//        // if qr code haven't been scanned, reserve 122 sec for qr code and going to goal
+//        // otherwise, keep deactivating until need to go to goal (18 sec for safety)
+//        while(
+//                PathLengthHelper.getTime(currPoint, 8) + 123000 <= missionTime
+//                        || (isQrCodeFinished() && PathLengthHelper.getTime(currPoint, 8) + 18000 <= missionTime)
+//                ) {
+//            activatedTargets = api.getActiveTargets();
+//            missionTime = api.getTimeRemaining().get(1);
+//
+//            // find best route and go to deactivate
+//            if(!deactivation(activatedTargets)) {
+//                break;
+//            }
+//
+//        }
+//
+//        log("end of while loop");
+//
+//        if(!isQrCodeFinished()) {
+//            activatedTargets = api.getActiveTargets();
+//
+//            // put qr code and goal into possible choice (qr code and goal must be selected)
+//            activatedTargets.add(7);
+//            activatedTargets.add(8);
+//
+//            deactivation(activatedTargets);
+//
+//            if(currPoint != 8) {
+//                goingToGoalMission();
+//            }
+//            log("end of not found qrcode end game");
+//        } else {
+//            goingToGoalMission();
+//            log("end of normal end game");
+//        }
     }
 }
 

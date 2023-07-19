@@ -13,22 +13,19 @@ import com.google.zxing.common.HybridBinarizer;
 import com.google.zxing.qrcode.QRCodeReader;
 
 import org.opencv.android.Utils;
+import org.opencv.calib3d.Calib3d;
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
-import org.opencv.core.MatOfPoint2f;
-import org.opencv.core.Point;
-import org.opencv.core.Rect;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 
 public class QrCodeHelper {
     public static Mat processed;
 
-    public static Mat undistortImg(Mat src, double[][] navIntrinsics) {
+    public static Mat undistortImg(Mat src, double[][] navIntrinsics, boolean black) {
         Mat cam_Matrix = new Mat(3, 3, CvType.CV_32FC1);
         Mat distCoeff = new Mat(1, 5, CvType.CV_32FC1);
-        Mat output = new Mat(src.size(), src.type());
 
         // cam_matrix & dat coefficient arr to mat
         for (int i = 0; i <= 8; i++) {
@@ -43,7 +40,17 @@ public class QrCodeHelper {
             distCoeff.put(0, i, navIntrinsics[1][i]);
         }
 
-        Imgproc.undistort(src, output, cam_Matrix, distCoeff);
+        Mat output = new Mat(src.size(), src.type());
+        if(black) {
+            // undistort with keeping all pixel
+            Mat optimal = Calib3d.getOptimalNewCameraMatrix(cam_Matrix, distCoeff, new Size(1280, 960), 1);
+            Mat map1 = new Mat(), map2 = new Mat();
+            Imgproc.initUndistortRectifyMap(cam_Matrix, distCoeff, new Mat(), optimal, new Size(1280, 960), CvType.CV_8UC1, map1, map2);
+
+            Imgproc.remap(src, output, map1, map2, Imgproc.INTER_LINEAR);
+        } else {
+            Imgproc.undistort(src, output, cam_Matrix, distCoeff);
+        }
 
         return output;
     }

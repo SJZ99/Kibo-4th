@@ -4,6 +4,8 @@ import android.support.annotation.NonNull;
 
 import java.util.Objects;
 
+import jp.jaxa.iss.kibo.rpc.taiwan.YourService;
+
 /**
  * Created by Jian Zhe Su on 7/11/2023.
  */
@@ -47,6 +49,9 @@ public class WayPoint implements Comparable<WayPoint> {
             }
         }
         points += accumulatedPoints;
+        if(id == 2 && !YourService.isQrCodeFinished()) {
+            points += 20;
+        }
     }
 
     public int getId() {
@@ -95,10 +100,17 @@ public class WayPoint implements Comparable<WayPoint> {
         if(this.isVisited(8)) {
             critical1++;
         }
+        if(this.isVisited(2) && !YourService.isQrCodeFinished()) {
+            critical1++;
+        }
+
         if(wayPoint.isVisited(7)) {
             critical2++;
         }
         if(wayPoint.isVisited(8)) {
+            critical2++;
+        }
+        if(wayPoint.isVisited(2) && !YourService.isQrCodeFinished()) {
             critical2++;
         }
 
