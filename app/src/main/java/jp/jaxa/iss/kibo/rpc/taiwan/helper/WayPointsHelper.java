@@ -19,7 +19,7 @@ public class WayPointsHelper {
         points[1] = new Point(11.27 - 0.06, -9.92 - 0.05, 5.29 + 0.185);
         points[2] = new Point(10.612 - 0.155, -9.07 - 0.125, 4.48 + 0.15);
         points[3] = new Point(10.71, -7.7 - 0.068, 4.48);
-        points[4] = new Point(10.51, -6.718 + 0.1, 5.1804 + 0.03);
+        points[4] = new Point(10.41, -6.718 + 0.1, 5.1804 + 0.03);
         points[5] = new Point(11.114 - 0.07, -7.97 + 0.05, 5.33);
         points[6] = new Point(11.355, -8.993 - 0.053, 4.78 + 0.16);
         points[7] = new Point(11.369 - 0.5, -8.9, 4.9); // -0.5, -0
@@ -138,8 +138,9 @@ public class WayPointsHelper {
         wayPoint[0][3].add(points[3]);
 
         // 3 <-> 4
-        wayPoint[3][4].add(points[3]);
+        wayPoint[3][4].add(points[3])
         wayPoint[3][4].add(new Point(10.626533168828,-7.1936467429033,5.1804));
+        //距離keep out zone 37.26cm
         wayPoint[3][4].add(points[4]);
 
         // 3 <-> 5
