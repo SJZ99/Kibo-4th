@@ -2,13 +2,17 @@ package jp.jaxa.iss.kibo.rpc.taiwan.helper;
 
 import android.graphics.Bitmap;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.google.zxing.BarcodeFormat;
 import com.google.zxing.BinaryBitmap;
 import com.google.zxing.DecodeHintType;
 import com.google.zxing.RGBLuminanceSource;
 
+import com.google.zxing.Result;
 import com.google.zxing.common.HybridBinarizer;
 import com.google.zxing.qrcode.QRCodeReader;
 
@@ -21,7 +25,6 @@ import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 
 public class QrCodeHelper {
-    public static Mat processed;
 
     public static Mat undistortImg(Mat src, double[][] navIntrinsics, boolean black) {
         Mat cam_Matrix = new Mat(3, 3, CvType.CV_32FC1);
@@ -41,6 +44,7 @@ public class QrCodeHelper {
         }
 
         Mat output = new Mat(src.size(), src.type());
+
         if(black) {
             // undistort with keeping all pixel
             Mat optimal = Calib3d.getOptimalNewCameraMatrix(cam_Matrix, distCoeff, new Size(1280, 960), 1);
@@ -78,7 +82,7 @@ public class QrCodeHelper {
             RGBLuminanceSource rgbLuminanceSource = new RGBLuminanceSource(width, height, pixel);
             BinaryBitmap binaryBitmap = new BinaryBitmap(new HybridBinarizer(rgbLuminanceSource));
 
-            com.google.zxing.Result ans = new QRCodeReader().decode(binaryBitmap, hint);
+            Result ans = new QRCodeReader().decode(binaryBitmap, hint);
             return ans == null ? "" : ans.getText();
         } catch (Exception e) {
             return "";
@@ -89,6 +93,7 @@ public class QrCodeHelper {
         Map<DecodeHintType, Object> hint = new HashMap<>();
         hint.put(DecodeHintType.CHARACTER_SET, "UTF-8");
         hint.put(DecodeHintType.TRY_HARDER, Boolean.TRUE);
+        hint.put(DecodeHintType.POSSIBLE_FORMATS, Arrays.asList(BarcodeFormat.QR_CODE));
 
         return scanCore(bitmap, hint);
     }

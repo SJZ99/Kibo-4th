@@ -20,7 +20,7 @@ public class PathLengthHelper {
         time[2][6] = 24.75f;
         time[2][8] = 50.7f;
 
-        time[0][3] = 48.4f;
+        time[0][3] = 51.3f;
         time[3][1] = 48f;
         time[3][4] = 41f;
         time[3][5] = 37.2f;
@@ -44,7 +44,7 @@ public class PathLengthHelper {
         time[0][7] = 24.4f;
         time[7][1] = 26.3f;
         time[7][2] = 35.52f;
-        time[7][3] = 38.2f;
+        time[7][3] = 37.44f;
         time[7][4] = 35.9f;
         time[7][5] = 24.6f;
         time[7][6] = 17.8f;

@@ -47,7 +47,7 @@ public class ApiWrapperService extends KiboRpcService {
             res += bestRoute[i].getId() + " ";
         }
         log("Decision: " + res);
-        log("need time: " + bestRoute[bestRouteSize - 1].getTime());
+        if(bestRouteSize > 0) log("need time: " + bestRoute[bestRouteSize - 1].getTime());
         log("phrase: " + api.getTimeRemaining().get(0));
         log("mission: " + api.getTimeRemaining().get(1));
     }
@@ -60,7 +60,7 @@ public class ApiWrapperService extends KiboRpcService {
         if(wayPoints[index - 1].numberOfVisitedPoints() - 1 == targets.size() || wayPoints[index - 1].getId() == 8) {
 
             // no route has been saved
-            if(bestRouteSize == 0 || bestRoute[0] == null) {
+            if(bestRouteSize <= 0 || bestRoute[0] == null) {
                 // copy to bestRoute
                 resetRoute();
                 for(int i = 0; i < index; ++i) {
@@ -185,6 +185,7 @@ public class ApiWrapperService extends KiboRpcService {
             if(currPoint != 7 && currPoint != 8) {
                 api.laserControl(true);
                 api.takeTargetSnapshot(currPoint);
+                api.laserControl(false);
             }
         }
     }
