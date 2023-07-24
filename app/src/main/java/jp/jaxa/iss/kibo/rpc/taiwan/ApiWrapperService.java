@@ -23,7 +23,7 @@ public class ApiWrapperService extends KiboRpcService {
     protected static final boolean isDebug = true;
 
     // maximum times of single movement
-    static final int LOOP_MAX = 5;
+    static final int LOOP_MAX = 6;
 
     // current point, 0 for start point, [0, 8]
     protected static int currPoint = 0;
@@ -40,21 +40,28 @@ public class ApiWrapperService extends KiboRpcService {
 
         wayPoints[0] = new WayPoint(currPoint, 0, 0, (short) 0);
 
-        _decideRoute(1, targets);
+        _decideRoute(1, targets, api.getTimeRemaining());
 
-        String res = "";
-        for(int i = 1; i < bestRouteSize; ++i) {
-            res += bestRoute[i].getId() + " ";
-        }
-        log("Decision: " + res);
-        if(bestRouteSize > 0) log("need time: " + bestRoute[bestRouteSize - 1].getTime());
-        log("phrase: " + api.getTimeRemaining().get(0));
-        log("mission: " + api.getTimeRemaining().get(1));
+        // just debug message
+//        String res = "";
+//        for(int i = 1; i < bestRouteSize; ++i) {
+//            res += bestRoute[i].getId() + " ";
+//        }
+//        log("Decision: " + res);
+//        if(bestRouteSize > 0) log("need time: " + bestRoute[bestRouteSize - 1].getTime());
+//        log("phrase: " + api.getTimeRemaining().get(0));
+//        log("mission: " + api.getTimeRemaining().get(1));
     }
 
-    private void _decideRoute(int index, List<Integer> targets) {
-        // index must greater than 0
-        if(index < 0) return;
+    /**
+         *  Enumerate all possible route recursively
+         * @param index index of bestRoute
+         * @param targets activated targets
+         * @param time remaining time (avoid redundant calls)
+         */
+    private void _decideRoute(int index, List<Integer> targets, List<Long> time) {
+        // index must greater than 0 and less than 6 (will not happen)
+        if(index < 0 || index >= 6) return;
 
         // used all targets, or has used point 8 (goal)
         if(wayPoints[index - 1].numberOfVisitedPoints() - 1 == targets.size() || wayPoints[index - 1].getId() == 8) {
@@ -76,7 +83,6 @@ public class ApiWrapperService extends KiboRpcService {
                     resetRoute();
                     for(int i = 0; i < index; ++i) {
                         if(wayPoints[i] != null) {
-                            log("id: " + wayPoints[i].getId());
                         }
                         bestRoute[i] = wayPoints[i];
                     }
@@ -95,12 +101,11 @@ public class ApiWrapperService extends KiboRpcService {
             }
 
             float pathTime = wayPoints[index - 1].getTime() + PathLengthHelper.getTime(wayPoints[index - 1].getId(), i);
-            long missionTime = api.getTimeRemaining().get(1);
-            long phraseTime = api.getTimeRemaining().get(0);
+            long missionTime = time.get(1);
+            long phraseTime = time.get(0);
 
             // time check
             if(pathTime + 6000 > phraseTime || pathTime + 7500 > missionTime) {
-                log("Time check failed: id=" + i);
                 continue;
             }
 
@@ -108,12 +113,12 @@ public class ApiWrapperService extends KiboRpcService {
             wayPoints[index] = new WayPoint(i, pathTime, wayPoints[index - 1].getPoints(), wayPoints[index - 1].getVisited());
 
             // after put a way point at current index, try to put into next index
-            _decideRoute(index + 1, targets);
+            _decideRoute(index + 1, targets, time);
 
-            // or, construct a route without this target (but qr code and goal can't be eliminated
-            if(i != 7 && i != 8) {
+            // or, construct a route without this target (but qr code and goal can't be eliminated)
+            if(i != 7 && i != 8 && (isQrCodeFinished() || i != 2)) {
                 wayPoints[index - 1].setVisited(i);
-                _decideRoute(index, targets);
+                _decideRoute(index, targets, time);
                 wayPoints[index - 1].setUnvisited(i);
             }
         }
@@ -124,30 +129,32 @@ public class ApiWrapperService extends KiboRpcService {
         bestRouteSize = 0;
     }
 
-    public void log(String message) {
-        Log.i("Mainnn", message);
+    public static boolean isQrCodeFinished() {
+        return !message.equals("");
     }
 
+//    public void log(String message) {
+//        Log.i("Mainnn", message);
+//    }
+
     /**
-         *  Move five times at most
+         *  Move six times at most
          * @param p point
          * @param q quaternion
          * @return success or not
          */
     protected boolean moveTo(Point p, Quaternion q) {
-        // if mission time less than 10 sec, perform less times.
-        long missionTime = api.getTimeRemaining().get(1);
         int loopCounter = 0;
         Result result;
         do {
             result = api.moveTo(p, q, isDebug);
             ++loopCounter;
-        } while(result != null && !result.hasSucceeded() && loopCounter < LOOP_MAX && missionTime > 10000);
+        } while(result != null && !result.hasSucceeded() && loopCounter < LOOP_MAX);
         return result != null && result.hasSucceeded();
     }
 
     /**
-         *  Move from point to point
+         *  Move from point to point (using WayPointsHelper)
          * @param from current point
          * @param to target point
          */
@@ -158,6 +165,8 @@ public class ApiWrapperService extends KiboRpcService {
         // reverse or not
         boolean isReversed = false;
         Quaternion rotation = WayPointsHelper.getTargetRotation(to);
+        if(rotation == null) return;
+
         if(from > to) {
             int temp = from;
             from = to;
@@ -166,6 +175,8 @@ public class ApiWrapperService extends KiboRpcService {
         }
 
         ArrayList<Point> points = WayPointsHelper.getWayPoint(from, to);
+        if(points.isEmpty()) return;
+
         boolean isSuccess = false;
         if(isReversed) {
             for(int i = points.size() - 2; i >= 0; --i) {
@@ -185,7 +196,9 @@ public class ApiWrapperService extends KiboRpcService {
             if(currPoint != 7 && currPoint != 8) {
                 api.laserControl(true);
                 api.takeTargetSnapshot(currPoint);
-                api.laserControl(false);
+
+                // turn off automatically
+                // api.laserControl(false);
             }
         }
     }
@@ -204,5 +217,6 @@ public class ApiWrapperService extends KiboRpcService {
         } else if(message.equals("BLANK")){
             message = "NO_PROBLEM";
         }
+        // [else] at YourService -> goingToGoalMission, because we need empty string to represent scanning failed
     }
 }
