@@ -3,7 +3,6 @@ package jp.jaxa.iss.kibo.rpc.taiwan;
 import org.opencv.core.Mat;
 import org.opencv.core.Rect;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import jp.jaxa.iss.kibo.rpc.taiwan.helper.PathLengthHelper;
@@ -43,7 +42,6 @@ public class YourService extends ApiWrapperService {
             // cut
             Rect roi;
             if(currPoint == 2) {
-//                roi = new Rect(755, 0, 525, 480);
                 roi = new Rect(0, 480, 640, 480);
             } else {
                 roi = new Rect(0, 480, 1280, 480);
@@ -69,14 +67,6 @@ public class YourService extends ApiWrapperService {
     }
 
     private boolean deactivation(List<Integer> activatedTargets) {
-
-        // if find point 6, add qr code point
-        for(int i = 0; i < activatedTargets.size(); ++i) {
-            if(activatedTargets.get(i) == 6 && !isQrCodeFinished()) {
-                activatedTargets.add(7);
-                break;
-            }
-        }
 
         // enumerate all possible route, save best route in bestRoute, which is a WayPoint array
         decideRoute(activatedTargets);
@@ -104,6 +94,12 @@ public class YourService extends ApiWrapperService {
 
                 // normal movement
                 move(currPoint, bestRoute[i].getId());
+                checkDeactivation(bestRoute[i].getId());
+
+                // if there are a lot of overshoot in real environment, remaining time may not enough
+                if(bestRouteSize > 0 && (bestRoute[bestRouteSize - 1].getTime() - bestRoute[i].getTime()) + 6000 >= api.getTimeRemaining().get(1)) {
+                    return false;
+                }
 
                 // at point 7 or point 2, scan qr code
                 if(bestRoute[i].getId() == 7 || (bestRoute[i].getId() == 2 && !isQrCodeFinished())) {
@@ -140,45 +136,52 @@ public class YourService extends ApiWrapperService {
     protected void runPlan1(){
 
         api.startMission();
+        move(0, 7);
+//        api.saveBitmapImage(api.getBitmapNavCam(), "p7.jpg");
+        qrCodeMission();
+
+//        api.notifyGoingToGoal();
+        processString();
+        api.reportMissionCompletion(message);
 
         // make decision
-        List<Integer> activatedTargets;
-        long missionTime = api.getTimeRemaining().get(1);
-
-        // if qr code haven't been scanned, reserve 123 sec for qr code and going to goal
-        // otherwise, keep deactivating until need to go to goal (18 sec for safety)
-        while(
-                PathLengthHelper.getTime(currPoint, 8) + 123000 <= missionTime
-                || (isQrCodeFinished() && PathLengthHelper.getTime(currPoint, 8) + 18000 <= missionTime)
-        ) {
-            activatedTargets = api.getActiveTargets();
-            missionTime = api.getTimeRemaining().get(1);
-
-            // find best route and go to deactivate
-            if(!deactivation(activatedTargets)) {
-                // have no enough time to finish route
-                break;
-            }
-
-        }
-
-        // last round
-        activatedTargets = api.getActiveTargets();
-
-        // put qr code and goal into possible choice (qr code and goal must be selected)
-        if(!isQrCodeFinished()) {
-            activatedTargets.add(7);
-        }
-
-        // add goal to route
-        activatedTargets.add(8);
-
-        deactivation(activatedTargets);
-
-        // will not happen
-        if(currPoint != 8) {
-            goingToGoalMission();
-        }
+//        List<Integer> activatedTargets;
+//        long missionTime = api.getTimeRemaining().get(1);
+//
+//        // if qr code haven't been scanned, reserve 123 sec for qr code and going to goal
+//        // otherwise, keep deactivating until need to go to goal (18 sec for safety)
+//        while(
+//                PathLengthHelper.getTime(currPoint, 8) + 123000 <= missionTime
+//                || (isQrCodeFinished() && PathLengthHelper.getTime(currPoint, 8) + 18000 <= missionTime)
+//        ) {
+//            activatedTargets = api.getActiveTargets();
+//            missionTime = api.getTimeRemaining().get(1);
+//
+//            // find best route and go to deactivate
+//            if(!deactivation(activatedTargets)) {
+//                // have no enough time to finish route
+//                break;
+//            }
+//
+//        }
+//
+//        // last round
+//        activatedTargets = api.getActiveTargets();
+//
+//        // put qr code and goal into possible choice (qr code and goal must be selected)
+//        if(!isQrCodeFinished()) {
+//            activatedTargets.add(7);
+//        }
+//
+//        // add goal to route
+//        activatedTargets.add(8);
+//
+//        deactivation(activatedTargets);
+//
+//        // will not happen
+//        if(currPoint != 8) {
+//            goingToGoalMission();
+//        }
     }
 }
 

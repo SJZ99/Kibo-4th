@@ -1,9 +1,7 @@
 package jp.jaxa.iss.kibo.rpc.taiwan.helper;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 
-import java.util.Map;
+import java.util.ArrayList;
 
 import gov.nasa.arc.astrobee.types.Point;
 import gov.nasa.arc.astrobee.types.Quaternion;
@@ -11,20 +9,18 @@ import gov.nasa.arc.astrobee.types.Quaternion;
 public class WayPointsHelper {
     private static final int SIZE = 9;
     private static ArrayList<Point>[][] wayPoint = new ArrayList[SIZE][SIZE];
-    private static Map<Integer, Quaternion> targetRotation = new HashMap<>();
+    private static Quaternion[] targetRotation = new Quaternion[SIZE];
     private static Point[] points = new Point[SIZE];
 
     static {
         points[0] = new Point(10.315, -9.806, 4.293);
         points[1] = new Point(11.27 + 0.105, -9.92 + 0.17, 5.29 + 0.05);
-        points[2] = new Point(10.612 - 0.045, -9.07 + 0.092, 4.48 + 0.15);
+        points[2] = new Point(10.612 - 0.045, -9.07 + 0.105, 4.48 + 0.15);
         points[3] = new Point(10.71, -7.7 - 0.068, 4.48 + 0.21);
-
         points[4] = new Point(10.51, -6.9, 5.1804 + 0.03); // y = -6.718 + 0.1
-
         points[5] = new Point(11.114 - 0.07, -7.97 + 0.05, 5.33);
         points[6] = new Point(11.355, -8.993 - 0.053, 4.78 + 0.16);
-        points[7] = new Point(11.369 - 0.5, -8.9, 4.9); // -0.5, -0
+        points[7] = new Point(11.369 - 0.4, -9, 4.9); // y = -8.9
         points[8] = new Point(11.143, -6.71, 4.96);
 
         wayPointInit();
@@ -35,20 +31,20 @@ public class WayPointsHelper {
     private static void wayPointInit() {
         for (int i = 0; i < SIZE; ++i) {
             for (int j = i + 1; j < SIZE; ++j) {
-                wayPoint[i][j] = new ArrayList();
+                wayPoint[i][j] = new ArrayList<>();
             }
         }
     }
 
     private static void targetRotationInit() {
-        targetRotation.put(1, new Quaternion(-0.529f, 0.469f, -0.529f, 0.469f));
-        targetRotation.put(2, new Quaternion(-0.5f, 0.5f, 0.5f, 0.5f));
-        targetRotation.put(3, new Quaternion(0, 0.707f, 0, 0.707f));
-        targetRotation.put(4, new Quaternion(0, 0, -0.977f, -0.212f));
-        targetRotation.put(5, new Quaternion(-0.5f, -0.5f, -0.5f, 0.5f));
-        targetRotation.put(6, new Quaternion(0, 0, 0, 1));
-        targetRotation.put(7, new Quaternion(0.0f, 0.707f, 0.0f, 0.707f));
-        targetRotation.put(8, new Quaternion(0, 0, -0.707f, 0.707f));
+        targetRotation[1] = new Quaternion(-0.523f, 0.475f, -0.523f, 0.475f);
+        targetRotation[2] = new Quaternion(-0.5f, 0.5f, 0.5f, 0.5f);
+        targetRotation[3] = new Quaternion(0, 0.707f, 0, 0.707f);
+        targetRotation[4] = new Quaternion(0, 0, -0.977f, -0.212f);
+        targetRotation[5] = new Quaternion(-0.5f, -0.5f, -0.5f, 0.5f);
+        targetRotation[6] = new Quaternion(0, 0, 0, 1);
+        targetRotation[7] = new Quaternion(0.0f, 0.707f, 0.0f, 0.707f);
+        targetRotation[8] = new Quaternion(0, 0, -0.707f, 0.707f);
     }
 
     private static void addWayPoint() {
@@ -88,8 +84,9 @@ public class WayPointsHelper {
 
         // 1 <-> 8
         wayPoint[1][8].add(points[1]);
-        wayPoint[1][8].add(new Point(11.14, -8.20, 4.83));
-        wayPoint[1][8].add(new Point(11.143, -6.95, 4.96));
+        wayPoint[1][8].add(new Point(11.143, -6.78, 5.22));
+//        wayPoint[1][8].add(new Point(11.1, -7.73, 5.34));
+//        wayPoint[1][8].add(new Point(11.143, -6.9, 5.1054));
 
         //-----------------------------------------Point 2---------------------------------------------
         // 0 <-> 2
@@ -119,7 +116,7 @@ public class WayPointsHelper {
 
         // 2 <-> 8
         wayPoint[2][8].add(points[2]);
-        wayPoint[2][8].add(new Point(10.9, -8.20, 4.83));
+        wayPoint[2][8].add(new Point(10.9, -8.35, 4.88));
         wayPoint[2][8].add(new Point(11.143, -6.95, 4.96));
 
 
@@ -214,7 +211,10 @@ public class WayPointsHelper {
 
 
     public static Quaternion getTargetRotation(int targetPoint) {
-        return targetRotation.get(targetPoint);
+        if(targetPoint >= SIZE || targetPoint <= 0) {
+            return new Quaternion();
+        }
+        return targetRotation[targetPoint];
     }
 
     public static ArrayList<Point> getWayPoint(int from, int to) {
@@ -226,9 +226,7 @@ public class WayPointsHelper {
     }
 
     public static Point getPoint(int p) {
-        if(p < 0 || p >= SIZE) {
-            return null;
-        }
+        if(p <= 0 || p >= SIZE) return null;
         return points[p];
     }
 }

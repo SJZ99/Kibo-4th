@@ -14,10 +14,8 @@ import jp.jaxa.iss.kibo.rpc.taiwan.helper.WayPointsHelper;
 import jp.jaxa.iss.kibo.rpc.taiwan.obj.WayPoint;
 
 /**
- * Created by Jian-Zhe, Su on 7.11.2023.
  * Consist of moveTo wrapper, move function, string transformation
  */
-
 public class ApiWrapperService extends KiboRpcService {
     // api.moveTo message
     protected static final boolean isDebug = true;
@@ -41,13 +39,18 @@ public class ApiWrapperService extends KiboRpcService {
         wayPoints[0] = new WayPoint(currPoint, 0, 0, (short) 0);
 
         _decideRoute(1, targets, api.getTimeRemaining());
+        if(bestRouteSize > 0 && bestRoute[bestRouteSize - 1].isVisited(2) && bestRoute[bestRouteSize - 1].isVisited(7)) {
+            log("Redundant node found");
+           targets.remove(targets.indexOf(7));
+            _decideRoute(1, targets, api.getTimeRemaining());
+        }
 
         // just debug message
-//        String res = "";
-//        for(int i = 1; i < bestRouteSize; ++i) {
-//            res += bestRoute[i].getId() + " ";
-//        }
-//        log("Decision: " + res);
+        String res = "";
+        for(int i = 1; i < bestRouteSize; ++i) {
+            res += bestRoute[i].getId() + " ";
+        }
+        log("Decision: " + res);
 //        if(bestRouteSize > 0) log("need time: " + bestRoute[bestRouteSize - 1].getTime());
 //        log("phrase: " + api.getTimeRemaining().get(0));
 //        log("mission: " + api.getTimeRemaining().get(1));
@@ -70,9 +73,10 @@ public class ApiWrapperService extends KiboRpcService {
             if(bestRouteSize <= 0 || bestRoute[0] == null) {
                 // copy to bestRoute
                 resetRoute();
-                for(int i = 0; i < index; ++i) {
-                    bestRoute[i] = wayPoints[i];
-                }
+                System.arraycopy(wayPoints, 0, bestRoute, 0, index);
+//                for(int i = 0; i < index; ++i) {
+//                    bestRoute[i] = wayPoints[i];
+//                }
                 bestRouteSize = index;
 
             } else { // compare to saved route
@@ -81,11 +85,10 @@ public class ApiWrapperService extends KiboRpcService {
                 if(best.compareTo(curr) < 0) {
                     // copy to bestRoute
                     resetRoute();
-                    for(int i = 0; i < index; ++i) {
-                        if(wayPoints[i] != null) {
-                        }
-                        bestRoute[i] = wayPoints[i];
-                    }
+                    System.arraycopy(wayPoints, 0, bestRoute, 0, index);
+//                    for(int i = 0; i < index; ++i) {
+//                        bestRoute[i] = wayPoints[i];
+//                    }
                     bestRouteSize = index;
                 }
             }
@@ -133,9 +136,9 @@ public class ApiWrapperService extends KiboRpcService {
         return !message.equals("");
     }
 
-//    public void log(String message) {
-//        Log.i("Mainnn", message);
-//    }
+    public void log(String message) {
+        Log.i("Mainnn", message);
+    }
 
     /**
          *  Move six times at most
@@ -143,14 +146,17 @@ public class ApiWrapperService extends KiboRpcService {
          * @param q quaternion
          * @return success or not
          */
-    protected boolean moveTo(Point p, Quaternion q) {
+    protected boolean moveTo(Point p, Quaternion q, int maxTimes) {
         int loopCounter = 0;
         Result result;
         do {
             result = api.moveTo(p, q, isDebug);
             ++loopCounter;
-        } while(result != null && !result.hasSucceeded() && loopCounter < LOOP_MAX);
+        } while(result != null && !result.hasSucceeded() && loopCounter < maxTimes);
         return result != null && result.hasSucceeded();
+    }
+    protected boolean moveTo(Point p, Quaternion q) {
+        return moveTo(p, q, LOOP_MAX);
     }
 
     /**
@@ -194,6 +200,8 @@ public class ApiWrapperService extends KiboRpcService {
 
             // qr code and goal
             if(currPoint != 7 && currPoint != 8) {
+
+                checkAccuracy(currPoint);
                 api.laserControl(true);
                 api.takeTargetSnapshot(currPoint);
 
@@ -218,5 +226,30 @@ public class ApiWrapperService extends KiboRpcService {
             message = "NO_PROBLEM";
         }
         // [else] at YourService -> goingToGoalMission, because we need empty string to represent scanning failed
+    }
+
+    protected void checkDeactivation(int id) {
+        if(api.getActiveTargets().contains(id)) {
+
+            if(moveTo(WayPointsHelper.getPoint(id), WayPointsHelper.getTargetRotation(id))) {
+                api.laserControl(true);
+                api.takeTargetSnapshot(id);
+            }
+        }
+    }
+
+    private boolean checkAccuracy(int id) {
+        if(id != 3) return true;
+
+        Point position = api.getRobotKinematics().getPosition();
+        Point target = WayPointsHelper.getPoint(id);
+
+        if(Math.sqrt(
+                Math.pow(position.getX() - target.getX(), 2) +
+                        Math.pow(position.getY() - target.getY(), 2) +
+                        Math.pow(position.getZ() - target.getZ(), 2)) >= 0.05) {
+            return moveTo(WayPointsHelper.getPoint(id), WayPointsHelper.getTargetRotation(id));
+        }
+        return true;
     }
 }

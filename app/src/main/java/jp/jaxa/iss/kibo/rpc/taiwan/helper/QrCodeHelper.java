@@ -2,8 +2,7 @@ package jp.jaxa.iss.kibo.rpc.taiwan.helper;
 
 import android.graphics.Bitmap;
 
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -89,11 +88,11 @@ public class QrCodeHelper {
         }
     }
 
-    public static String deepScan(Bitmap bitmap) {
+    private static String deepScan(Bitmap bitmap) {
         Map<DecodeHintType, Object> hint = new HashMap<>();
         hint.put(DecodeHintType.CHARACTER_SET, "UTF-8");
         hint.put(DecodeHintType.TRY_HARDER, Boolean.TRUE);
-        hint.put(DecodeHintType.POSSIBLE_FORMATS, Arrays.asList(BarcodeFormat.QR_CODE));
+        hint.put(DecodeHintType.POSSIBLE_FORMATS, Collections.singletonList(BarcodeFormat.QR_CODE));
 
         return scanCore(bitmap, hint);
     }
