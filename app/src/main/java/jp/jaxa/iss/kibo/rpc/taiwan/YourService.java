@@ -136,13 +136,13 @@ public class YourService extends ApiWrapperService {
     protected void runPlan1(){
 
         api.startMission();
-        move(0, 7);
+//        move(0, 7);
 //        api.saveBitmapImage(api.getBitmapNavCam(), "p7.jpg");
-        qrCodeMission();
+//        qrCodeMission();
 
 //        api.notifyGoingToGoal();
-        processString();
-        api.reportMissionCompletion(message);
+//        processString();
+//        api.reportMissionCompletion(message);
 
         // make decision
 //        List<Integer> activatedTargets;
