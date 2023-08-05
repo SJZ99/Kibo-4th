@@ -9,6 +9,8 @@ import gov.nasa.arc.astrobee.types.Quaternion;
 public class WayPointsHelper {
     private static final int SIZE = 9;
     private static ArrayList<Point>[][] wayPoint = new ArrayList[SIZE][SIZE];
+    private static ArrayList<Quaternion>[][] wayRotation = new ArrayList[SIZE][SIZE];
+
     private static Quaternion[] targetRotation = new Quaternion[SIZE];
     private static Point[] points = new Point[SIZE];
 
@@ -18,8 +20,7 @@ public class WayPointsHelper {
         points[2] = new Point(10.612 - 0.045, -9.07 + 0.105, 4.48 + 0.15);
         points[3] = new Point(10.71, -7.7 - 0.068, 4.48 + 0.21);
         points[4] = new Point(10.51, -6.9, 5.1804 + 0.03); // y = -6.718 + 0.1
-        points[5] = new Point(11.114 - 0.07, -7.97 + 0.05, 5.33);
-        points[6] = new Point(11.355, -8.993 - 0.053, 4.78 + 0.16);
+
         points[7] = new Point(11.369 - 0.4, -9, 4.9); // y = -8.9
         points[8] = new Point(11.143, -6.71, 4.96);
 
@@ -36,13 +37,20 @@ public class WayPointsHelper {
         }
     }
 
+    private static void wayRotationInit() {
+        for (int i = 0; i < SIZE; ++i) {
+            for (int j = i + 1; j < SIZE; ++j) {
+                wayRotation[i][j] = new ArrayList<>();
+            }
+        }
+    }
+
     private static void targetRotationInit() {
         targetRotation[1] = new Quaternion(-0.523f, 0.475f, -0.523f, 0.475f);
         targetRotation[2] = new Quaternion(-0.5f, 0.5f, 0.5f, 0.5f);
         targetRotation[3] = new Quaternion(0, 0.707f, 0, 0.707f);
         targetRotation[4] = new Quaternion(0, 0, -0.977f, -0.212f);
-        targetRotation[5] = new Quaternion(-0.5f, -0.5f, -0.5f, 0.5f);
-        targetRotation[6] = new Quaternion(0, 0, 0, 1);
+
         targetRotation[7] = new Quaternion(0.0f, 0.707f, 0.0f, 0.707f);
         targetRotation[8] = new Quaternion(0, 0, -0.707f, 0.707f);
     }
@@ -70,14 +78,6 @@ public class WayPointsHelper {
         wayPoint[1][4].add(points[1]);
         wayPoint[1][4].add(points[4]);
 
-        // 1 <-> 5
-        wayPoint[1][5].add(points[1]);
-        wayPoint[1][5].add(points[5]);
-
-        // 1 <-> 6
-        wayPoint[1][6].add(points[1]);
-        wayPoint[1][6].add(points[6]);
-
         // 1 <-> 7
         wayPoint[1][7].add(points[1]);
         wayPoint[1][7].add(points[7]);
@@ -102,14 +102,6 @@ public class WayPointsHelper {
         wayPoint[2][4].add(points[2]);
         wayPoint[2][4].add(points[4]);
 
-        // 2 <-> 5
-        wayPoint[2][5].add(points[2]);
-        wayPoint[2][5].add(points[5]);
-
-        // 2 <-> 6
-        wayPoint[2][6].add(points[2]);
-        wayPoint[2][6].add(points[6]);
-
         // 2 <-> 7
         wayPoint[2][7].add(points[2]);
         wayPoint[2][7].add(points[2]); // scan qr code at p2
@@ -130,16 +122,6 @@ public class WayPointsHelper {
         wayPoint[3][4].add(points[3]);
         wayPoint[3][4].add(points[4]);
 
-        // 3 <-> 5
-        wayPoint[3][5].add(points[3]);
-        wayPoint[3][5].add(new Point(10.9, -7.58,  5.25));
-        wayPoint[3][5].add(points[5]);
-
-        // 3 <-> 6
-        wayPoint[3][6].add(points[3]);
-        wayPoint[3][6].add(new Point(10.6974195342895,-8.101652195976,  4.78));
-        wayPoint[3][6].add(points[6]);
-
         // 3 <-> 7
         wayPoint[3][7].add(points[3]);
         wayPoint[3][7].add(new Point(10.66 , -8.3,5.06));
@@ -155,14 +137,6 @@ public class WayPointsHelper {
         wayPoint[0][4].add(new Point(10.5,-8.35, 4.9));
         wayPoint[0][4].add(points[4]);
 
-        // 4 <-> 5
-        wayPoint[4][5].add(points[4]);
-        wayPoint[4][5].add(points[5]);
-
-        // 4 <-> 6
-        wayPoint[4][6].add(points[4]);
-        wayPoint[4][6].add(points[6]);
-
         // 4 <-> 7
         wayPoint[4][7].add(points[4]);
         wayPoint[4][7].add(points[7]);
@@ -171,37 +145,6 @@ public class WayPointsHelper {
         wayPoint[4][8].add(points[4]);
         wayPoint[4][8].add(new Point(11.1, -6.7607, 5.1254));
 
-        //-----------------------------------------Point 5---------------------------------------------
-        // 0 <-> 5
-        wayPoint[0][5].add(points[0]);
-        wayPoint[0][5].add(points[5]);
-
-        // 5 <-> 6
-        wayPoint[5][6].add(points[5]);
-        wayPoint[5][6].add(new Point(11.20,-8.33,5.5));
-        wayPoint[5][6].add(points[6]);
-
-        // 5 <-> 7
-        wayPoint[5][7].add(points[5]);
-        wayPoint[5][7].add(points[7]);
-
-        // 5 <-> 8
-        wayPoint[5][8].add(points[5]);
-        wayPoint[5][8].add(new Point(11.143, -6.96, 4.96));
-
-        //-----------------------------------------Point 6---------------------------------------------
-        // 0 <-> 6
-        wayPoint[0][6].add(points[0]);
-        wayPoint[0][6].add(points[6]);
-
-        // 6 <-> 7
-        wayPoint[6][7].add(points[6]);
-        wayPoint[6][7].add(points[7]);
-
-        // 6 <-> 8
-        wayPoint[6][8].add(points[6]);
-        wayPoint[6][8].add(new Point(11.143, -6.96, 4.96));
-
         //-----------------------------------------Point 7---------------------------------------------
         // 7 <-> 8
         wayPoint[7][8].add(points[7]);
@@ -209,6 +152,10 @@ public class WayPointsHelper {
         wayPoint[7][8].add(new Point(11.143, -6.96, 4.96));
     }
 
+    private void add(int from, int to, Point p, Quaternion q) {
+        wayPoint[from][to].add(p);
+        wayRotation[from][to].add(q);
+    }
 
     public static Quaternion getTargetRotation(int targetPoint) {
         if(targetPoint >= SIZE || targetPoint <= 0) {
@@ -223,6 +170,14 @@ public class WayPointsHelper {
             return new ArrayList<>();
         }
         return wayPoint[from][to];
+    }
+
+    public static ArrayList<Quaternion> getWayRotation(int from, int to) {
+        // will not happen
+        if(from < 0 || to < 0 || from >= SIZE || to >= SIZE || from >= to) {
+            return new ArrayList<>();
+        }
+        return wayRotation[from][to];
     }
 
     public static Point getPoint(int p) {

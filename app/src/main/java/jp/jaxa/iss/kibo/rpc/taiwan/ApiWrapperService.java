@@ -170,8 +170,6 @@ public class ApiWrapperService extends KiboRpcService {
 
         // reverse or not
         boolean isReversed = false;
-        Quaternion rotation = WayPointsHelper.getTargetRotation(to);
-        if(rotation == null) return;
 
         if(from > to) {
             int temp = from;
@@ -181,16 +179,17 @@ public class ApiWrapperService extends KiboRpcService {
         }
 
         ArrayList<Point> points = WayPointsHelper.getWayPoint(from, to);
+        ArrayList<Quaternion> rot = WayPointsHelper.getWayRotation(from, to);
         if(points.isEmpty()) return;
 
         boolean isSuccess = false;
         if(isReversed) {
             for(int i = points.size() - 2; i >= 0; --i) {
-                isSuccess = moveTo(points.get(i), rotation);
+                isSuccess = moveTo(points.get(i), rot.get(i));
             }
         } else {
             for(int i = 1; i < points.size(); ++i) {
-                isSuccess = moveTo(points.get(i), rotation);
+                isSuccess = moveTo(points.get(i), rot.get(i));
             }
         }
 
