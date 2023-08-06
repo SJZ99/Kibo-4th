@@ -17,9 +17,9 @@ public class WayPointsHelper {
     static {
         points[0] = new Point(10.315000, -9.806000, 4.293000);
         points[1] = new Point(11.270000 + 0.105000, -9.92000 + 0.170000, 5.290000 + 0.050000);
-        points[2] = new Point(10.612000 - 0.045000, -9.070000 + 0.10500, 4.480000 + 0.150000);
+        points[2] = new Point(10.612000 - 0.045000, -9.070000 + 0.10500, 4.480000 + 0.200000);
         points[3] = new Point(10.710000, -7.700000 - 0.068000, 4.480000 + 0.210000);
-        points[4] = new Point(10.510000, -6.900000, 5.180400 + 0.030000); // y = -6.718 + 0.1
+        points[4] = new Point(10.600000, -6.920000, 5.180400 + 0.080000); // y = -6.718 + 0.1
 
         points[7] = new Point(11.369000 - 0.400000, -9.000000, 4.900000); // y = -8.9
         points[8] = new Point(11.143000, -6.710000, 4.960000);
@@ -51,7 +51,7 @@ public class WayPointsHelper {
         targetRotation[1] = new Quaternion(-0.523f, 0.475f, -0.523f, 0.475f);
         targetRotation[2] = new Quaternion(-0.5f, 0.5f, 0.5f, 0.5f);
         targetRotation[3] = new Quaternion(0, 0.707f, 0, 0.707f);
-        targetRotation[4] = new Quaternion(0, 0, -0.977f, -0.212f);
+        targetRotation[4] = new Quaternion(0.034f, 0.007f, -0.98f, -0.197f);
 
         targetRotation[7] = new Quaternion(0.0f, 0.707f, 0.0f, 0.707f);
         targetRotation[8] = new Quaternion(0, 0, -0.707f, 0.707f);
@@ -76,8 +76,7 @@ public class WayPointsHelper {
         add(1, 3, points[1], targetRotation[1]);
         add(1, 3, points[3], targetRotation[3]);
 
-        // 1 <-> 4
-        add(1, 4, points[1], targetRotation[1]);
+        add(1, 4, points[1], new Quaternion(-0.593f, 0.748f, -0.069f, 0.29f));
         add(1, 4, points[4], targetRotation[4]);
 
         // 1 <-> 7
@@ -86,7 +85,7 @@ public class WayPointsHelper {
 
         // 1 <-> 8
         add(1, 8, points[1], targetRotation[1]);
-        add(1, 8, points[8], targetRotation[8]);
+        add(1, 8, new Point(11.143, -6.78, 5.22), targetRotation[8]);
 //        wayPoint[1][8].add(new Point(11.1, -7.73, 5.34));
 //        wayPoint[1][8].add(new Point(11.143, -6.9, 5.1054));
 
@@ -135,7 +134,7 @@ public class WayPointsHelper {
         //-----------------------------------------Point 4---------------------------------------------
         // 0 <-> 4
         add(0, 4, points[0], targetRotation[0]);
-        add(0, 4, new Point(10.500000,-8.350000, 4.900000), targetRotation[4]);
+//        add(0, 4, new Point(10.500000,-8.350000, 4.900000), targetRotation[4]);
         add(0, 4, points[4], targetRotation[4]);
 
         // 4 <-> 7
